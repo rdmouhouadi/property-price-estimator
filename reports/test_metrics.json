@@ -1,0 +1,38 @@
+{
+  "run_id_model": "8056d1ba",
+  "overall": {
+    "mae_eur": 48945.0,
+    "mdape_pct": 15.96,
+    "within_10_pct": 33.2,
+    "within_20_pct": 59.5,
+    "rmse_log": 0.3128
+  },
+  "type_bien=Appartement": {
+    "mae_eur": 38973.0,
+    "mdape_pct": 13.64,
+    "within_10_pct": 38.1,
+    "within_20_pct": 66.9,
+    "rmse_log": 0.2488
+  },
+  "type_bien=Maison": {
+    "mae_eur": 56675.0,
+    "mdape_pct": 18.22,
+    "within_10_pct": 29.4,
+    "within_20_pct": 53.8,
+    "rmse_log": 0.3545
+  },
+  "has_dpe=False": {
+    "mae_eur": 51129.0,
+    "mdape_pct": 17.19,
+    "within_10_pct": 30.9,
+    "within_20_pct": 56.4,
+    "rmse_log": 0.3305
+  },
+  "has_dpe=True": {
+    "mae_eur": 39805.0,
+    "mdape_pct": 11.91,
+    "within_10_pct": 43.1,
+    "within_20_pct": 72.6,
+    "rmse_log": 0.2239
+  }
+}
