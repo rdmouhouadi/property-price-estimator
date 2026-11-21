@@ -1,0 +1,356 @@
+﻿
+== dpe ==
+  id                                            UUID
+  date_etablissement_dpe                        TIMESTAMP
+  hashkey                                       VARCHAR
+  version                                       VARCHAR
+  identifiant_dpe                               VARCHAR
+  desactive                                     BOOLEAN
+  ancien_dpe_id                                 UUID
+  date_reception_dpe                            TIMESTAMP
+  dpe_xml_path                                  VARCHAR
+  version_moteur_used                           VARCHAR
+  version_xsd_used                              VARCHAR
+  statut                                        VARCHAR
+  is_dpe_2012                                   BOOLEAN
+  dpe2012_donnees_id                            UUID
+  enum_type_energie_chauffage_principal_id      INTEGER
+  enum_type_energie_ecs_principal_id            INTEGER
+  xml_hash                                      VARCHAR
+  suppression_en_cours                          BOOLEAN
+  dpe_remplacant_id                             UUID
+  generateur_chauffage_principal_id             UUID
+  anonymise                                     BOOLEAN
+  migre_en_utc                                  BOOLEAN
+  date_derniere_modification                    TIMESTAMP
+  generateur_ecs_principal_id                   UUID
+
+== dpe_administratif ==
+  dpe_id                                        UUID
+  date_etablissement_dpe                        TIMESTAMP
+  date_visite_diagnostiqueur                    TIMESTAMP
+  enum_modele_dpe_id                            INTEGER
+  dpe_a_remplacer                               VARCHAR
+  motif_remplacement                            VARCHAR
+  date_fin_validite_dpe                         TIMESTAMP
+  enum_version_id                               VARCHAR
+  dpe_immeuble_associe                          VARCHAR
+  migre_en_utc                                  BOOLEAN
+  date_derniere_modification                    TIMESTAMP
+  is_dpe_2012                                   BOOLEAN
+
+== dpe_caracteristique_generale ==
+  dpe_id                                        UUID
+  annee_construction                            INTEGER
+  appartement_non_visite                        INTEGER
+  enum_categorie_erp_id                         INTEGER
+  enum_methode_application_dpe_log_id           INTEGER
+  enum_periode_construction_id                  INTEGER
+  enum_usage_fonctionnel_batiment_id            INTEGER
+  hsp                                           DOUBLE
+  nombre_appartement                            DECIMAL(19,2)
+  nombre_niveau_immeuble                        DECIMAL(19,2)
+  nombre_niveau_logement                        DECIMAL(19,2)
+  nombre_occupant                               INTEGER
+  shon                                          DOUBLE
+  surface_habitable_immeuble                    DOUBLE
+  surface_habitable_logement                    DOUBLE
+  surface_utile                                 DOUBLE
+  surface_tertiaire_immeuble                    DOUBLE
+  enum_methode_application_dpe_ter_id           INTEGER
+  enum_calcul_echantillonnage_id                INTEGER
+  date_derniere_modification                    TIMESTAMP
+  is_dpe_2012                                   BOOLEAN
+  enum_sous_modele_dpe_ter_id                   INTEGER
+
+== dpe_ep_conso ==
+  dpe_id                                        UUID
+  ep_conso_5_usages                             DOUBLE
+  ep_conso_5_usages_m2                          DOUBLE
+  ep_conso_auxiliaire_distribution_ch           DOUBLE
+  ep_conso_auxiliaire_distribution_ecs          DOUBLE
+  ep_conso_auxiliaire_distribution_fr           DOUBLE
+  ep_conso_auxiliaire_generation_ch             DOUBLE
+  ep_conso_auxiliaire_generation_ch_depensier   DOUBLE
+  ep_conso_auxiliaire_generation_ecs            DOUBLE
+  ep_conso_auxiliaire_generation_ecs_depensier  DOUBLE
+  ep_conso_auxiliaire_ventilation               DOUBLE
+  ep_conso_ch                                   DOUBLE
+  ep_conso_ch_depensier                         DOUBLE
+  ep_conso_eclairage                            DOUBLE
+  ep_conso_ecs                                  DOUBLE
+  ep_conso_ecs_depensier                        DOUBLE
+  ep_conso_fr                                   DOUBLE
+  ep_conso_fr_depensier                         DOUBLE
+  ep_conso_totale_auxiliaire                    DOUBLE
+  classe_bilan_dpe                              VARCHAR
+  date_derniere_modification                    TIMESTAMP
+  is_dpe_2012                                   BOOLEAN
+  ancienne_classe_bilan_dpe                     VARCHAR
+  nouvelle_classe_energie_dpe                   VARCHAR
+  ancienne_ep_conso_5_usages_pef                DOUBLE
+  ancienne_ep_conso_5_usages_m2_pef             DOUBLE
+  ancienne_classe_bilan_dpe_pef                 VARCHAR
+  nouvelle_ep_conso_5_usages_pef                DOUBLE
+  nouvelle_ep_conso_5_usages_m2_pef             DOUBLE
+  nouvelle_classe_energie_dpe_pef               VARCHAR
+  nouvelle_classe_bilan_dpe_pef                 VARCHAR
+
+== dpe_emission_ges ==
+  dpe_id                                        UUID
+  classe_emission_ges                           VARCHAR
+  emission_ges_5_usages                         DOUBLE
+  emission_ges_5_usages_m2                      DOUBLE
+  emission_ges_auxiliaire_distribution_ch       DOUBLE
+  emission_ges_auxiliaire_distribution_ecs      DOUBLE
+  emission_ges_auxiliaire_distribution_fr       DOUBLE
+  emission_ges_auxiliaire_generation_ch         DOUBLE
+  emission_ges_auxiliaire_generation_ch_depensier DOUBLE
+  emission_ges_auxiliaire_generation_ecs        DOUBLE
+  emission_ges_auxiliaire_generation_ecs_depensier DOUBLE
+  emission_ges_auxiliaire_ventilation           DOUBLE
+  emission_ges_ch                               DOUBLE
+  emission_ges_ch_depensier                     DOUBLE
+  emission_ges_eclairage                        DOUBLE
+  emission_ges_ecs                              DOUBLE
+  emission_ges_ecs_depensier                    DOUBLE
+  emission_ges_fr                               DOUBLE
+  emission_ges_fr_depensier                     DOUBLE
+  emission_ges_totale_auxiliaire                DOUBLE
+  date_derniere_modification                    TIMESTAMP
+  is_dpe_2012                                   BOOLEAN
+  ancienne_classe_emission_ges                  VARCHAR
+
+== dpe_ef_conso ==
+  dpe_id                                        UUID
+  conso_5_usages                                DOUBLE
+  conso_5_usages_m2                             DOUBLE
+  conso_auxiliaire_distribution_ch              DOUBLE
+  conso_auxiliaire_distribution_ecs             DOUBLE
+  conso_auxiliaire_distribution_fr              DOUBLE
+  conso_auxiliaire_generation_ch                DOUBLE
+  conso_auxiliaire_generation_ch_depensier      DOUBLE
+  conso_auxiliaire_generation_ecs               DOUBLE
+  conso_auxiliaire_generation_ecs_depensier     DOUBLE
+  conso_auxiliaire_ventilation                  DOUBLE
+  conso_ch                                      DOUBLE
+  conso_ch_depensier                            DOUBLE
+  conso_eclairage                               DOUBLE
+  conso_ecs                                     DOUBLE
+  conso_ecs_depensier                           DOUBLE
+  conso_fr                                      DOUBLE
+  conso_fr_depensier                            DOUBLE
+  conso_totale_auxiliaire                       DOUBLE
+  date_derniere_modification                    TIMESTAMP
+
+== dpe_geolocalisation ==
+  administratif_id                              UUID
+  idpar                                         VARCHAR
+  immatriculation_copropriete                   VARCHAR
+  adresse_bien_id                               UUID
+  rpls_log_id                                   VARCHAR
+  id_batiment_rnb                               VARCHAR
+  date_derniere_modification                    TIMESTAMP
+  is_dpe_2012                                   BOOLEAN
+  provenance_rnb                                VARCHAR
+
+== dpe_installation_chauffage ==
+  id                                            UUID
+  besoin_ch                                     DOUBLE
+  besoin_ch_depensier                           DOUBLE
+  cle_repartition_ch                            DOUBLE
+  coef_ifc                                      DOUBLE
+  conso_ch                                      DOUBLE
+  conso_ch_depensier                            DOUBLE
+  description                                   VARCHAR
+  enum_cfg_installation_ch_id                   INTEGER
+  enum_methode_calcul_conso_id                  INTEGER
+  enum_methode_saisie_fact_couv_sol_id          INTEGER
+  enum_type_installation_id                     INTEGER
+  fch                                           DOUBLE
+  fch_saisi                                     DOUBLE
+  nombre_logement_echantillon                   DOUBLE
+  production_ch_solaire                         DOUBLE
+  ratio_virtualisation                          DOUBLE
+  surface_chauffee                              DOUBLE
+  dpe_id                                        UUID
+  tv_facteur_couverture_solaire_id              INTEGER
+  nombre_niveau_installation_ch                 INTEGER
+  reference                                     VARCHAR
+  rdim                                          DOUBLE
+  date_derniere_modification                    TIMESTAMP
+  is_dpe_2012                                   BOOLEAN
+
+== dpe_generateur_chauffage ==
+  id                                            UUID
+  conso_ch                                      DOUBLE
+  conso_ch_depensier                            DOUBLE
+  description                                   VARCHAR
+  enum_methode_saisie_carac_sys_id              INTEGER
+  enum_type_energie_id                          INTEGER
+  enum_type_generateur_ch_id                    INTEGER
+  enum_usage_generateur_id                      INTEGER
+  n_radiateurs_gaz                              DECIMAL(19,2)
+  pn                                            DOUBLE
+  position_volume_chauffe                       INTEGER
+  presence_regulation_combustion                INTEGER
+  presence_ventouse                             INTEGER
+  priorite_generateur_cascade                   DECIMAL(19,2)
+  pveilleuse                                    DOUBLE
+  qp0                                           DOUBLE
+  ref_produit_generateur_ch                     VARCHAR
+  rendement_generation                          DOUBLE
+  rpint                                         DOUBLE
+  rpn                                           DOUBLE
+  scop                                          DOUBLE
+  temp_fonc_100                                 DOUBLE
+  temp_fonc_30                                  DOUBLE
+  tv_generateur_combustion_id                   INTEGER
+  tv_rendement_generation_id                    INTEGER
+  tv_reseau_chaleur_id                          INTEGER
+  tv_scop_id                                    INTEGER
+  tv_temp_fonc_100_id                           INTEGER
+  tv_temp_fonc_30_id                            INTEGER
+  installation_chauffage_id                     UUID
+  enum_lien_generateur_emetteur_id              INTEGER
+  identifiant_reseau_chaleur                    VARCHAR
+  reference                                     VARCHAR
+  dpe2012_enum_type_energie_id                  INTEGER
+  reference_generateur_mixte                    VARCHAR
+  date_arrete_reseau_chaleur                    TIMESTAMP
+  migre_en_utc                                  BOOLEAN
+  date_derniere_modification                    TIMESTAMP
+  is_dpe_2012                                   BOOLEAN
+
+== dpe_enum_periode_construction ==
+  id                                            INTEGER
+  lib                                           VARCHAR
+  defaut_mur_enum_type_isolation_id             VARCHAR
+  defaut_terre_plein_enum_type_isolation_id     VARCHAR
+  defaut_plancher_bas_enum_type_isolation_id    VARCHAR
+  defaut_plancher_haut_enum_type_isolation_id   VARCHAR
+  date_derniere_modification                    TIMESTAMP
+
+== dpe_enum_type_energie ==
+  id                                            INTEGER
+  lib                                           VARCHAR
+  date_derniere_modification                    TIMESTAMP
+
+== dpe_enum_classe_etiquette ==
+  id                                            VARCHAR
+  lib                                           VARCHAR
+  date_derniere_modification                    TIMESTAMP
+
+== dpe_enum_methode_application_dpe_log ==
+  id                                            INTEGER
+  lib                                           VARCHAR
+  methode_application_dpe                       VARCHAR
+  type_batiment                                 VARCHAR
+  type_installation_chauffage                   VARCHAR
+  type_installation_ecs                         VARCHAR
+  type_virtualisation_extrapolation             VARCHAR
+  declare_surface_immeuble                      VARCHAR
+  variables_requises                            VARCHAR
+  variables_interdites                          VARCHAR
+  surface_reference                             VARCHAR
+  niveau_certification_diagnostiqueur           VARCHAR
+  enum_modele_dpe_id                            VARCHAR
+  enum_modele_audit_id                          VARCHAR
+  type_habilitation_auditeur                    VARCHAR
+  date_derniere_modification                    TIMESTAMP
+  surface_reference_calcul_etiquette            VARCHAR
+
+== dpe_enum_version ==
+  id                                            VARCHAR
+  lib                                           VARCHAR
+  commentaire                                   VARCHAR
+  arrete_methode                                VARCHAR
+  arrete_reseau_chaleur                         VARCHAR
+  arrete_prix_energie                           VARCHAR
+  arrete_contenu_co2_energie                    VARCHAR
+  date_application_debut                        VARCHAR
+  date_application_fin                          VARCHAR
+  version_xsd_min                               VARCHAR
+  version_xsd_max                               VARCHAR
+  controle_coherence                            VARCHAR
+  version_controle_coherence_min                VARCHAR
+  version_controle_coherence_max                VARCHAR
+  date_derniere_modification                    TIMESTAMP
+
+-- dpe_enum_classe_etiquette values --
+   ('A', 'A', datetime.datetime(2023, 10, 26, 18, 1, 49, 197356))
+   ('B', 'B', datetime.datetime(2023, 10, 26, 18, 1, 49, 197356))
+   ('C', 'C', datetime.datetime(2023, 10, 26, 18, 1, 49, 197356))
+   ('D', 'D', datetime.datetime(2023, 10, 26, 18, 1, 49, 197356))
+   ('E', 'E', datetime.datetime(2023, 10, 26, 18, 1, 49, 197356))
+   ('F', 'F', datetime.datetime(2023, 10, 26, 18, 1, 49, 197356))
+   ('G', 'G', datetime.datetime(2023, 10, 26, 18, 1, 49, 197356))
+
+-- dpe_enum_methode_application_dpe_log values --
+   (1, 'dpe maison individuelle', 'dpe maison individuelle')
+   (2, 'dpe appartement individuel chauffage individuel ecs individuel', 'dpe appartement individuel')
+   (3, 'dpe appartement individuel chauffage collectif ecs individuel', 'dpe appartement individuel')
+   (4, 'dpe appartement individuel chauffage individuel ecs collectif', 'dpe appartement individuel')
+   (5, 'dpe appartement individuel chauffage collectif ecs collectif', 'dpe appartement individuel')
+   (6, 'dpe immeuble collectif chauffage individuel ecs individuel', 'dpe immeuble collectif')
+   (7, 'dpe immeuble collectif chauffage collectif ecs individuel', 'dpe immeuble collectif')
+   (8, 'dpe immeuble collectif chauffage individuel ecs collectif', 'dpe immeuble collectif')
+   (9, 'dpe immeuble collectif chauffage collectif ecs collectif', 'dpe immeuble collectif')
+   (10, 'dpe appartement gΘnΘrΘ α partir des donnΘes DPE immeuble chauffage individuel ecs individuel', 'dpe appartement gΘnΘrΘ α partir des donnΘes DPE immeuble')
+   (11, 'dpe appartement gΘnΘrΘ α partir des donnΘes DPE immeuble chauffage collectif ecs individuel', 'dpe appartement gΘnΘrΘ α partir des donnΘes DPE immeuble')
+   (12, 'dpe appartement gΘnΘrΘ α partir des donnΘes DPE immeuble chauffage individuel ecs collectif', 'dpe appartement gΘnΘrΘ α partir des donnΘes DPE immeuble')
+   (13, 'dpe appartement gΘnΘrΘ α partir des donnΘes DPE immeuble chauffage collectif ecs collectif', 'dpe appartement gΘnΘrΘ α partir des donnΘes DPE immeuble')
+   (14, "dpe issu d'une Θtude thermique rΘglementaire RT2012 bΓtiment : maison individuelle", "dpe issu d'une Θtude thermique rΘglementaire RT2012 bΓtiment : maison individuelle")
+   (15, "dpe issu d'une Θtude thermique rΘglementaire RT2012 bΓtiment : appartement chauffage collectif ecs collectif", "dpe issu d'une Θtude thermique rΘglementaire RT2012 bΓtiment : appartement")
+   (16, "dpe issu d'une Θtude thermique rΘglementaire RT2012 bΓtiment : appartement chauffage individuel ecs collectif", "dpe issu d'une Θtude thermique rΘglementaire RT2012 bΓtiment : appartement")
+   (17, "dpe issu d'une Θtude thermique rΘglementaire RT2012 bΓtiment : immeuble", "dpe issu d'une Θtude thermique rΘglementaire RT2012 bΓtiment : immeuble")
+   (18, "dpe issu d'une Θtude energie environement rΘglementaire RE2020 bΓtiment : maison individuelle", "dpe issu d'une Θtude energie environement rΘglementaire RE2020 bΓtiment : maison individuelle")
+   (19, "dpe issu d'une Θtude energie environement rΘglementaire RE2020 bΓtiment : appartement chauffage collectif ecs collectif", "dpe issu d'une Θtude energie environement rΘglementaire RE2020 bΓtiment : appartement")
+   (20, "dpe issu d'une Θtude energie environement rΘglementaire RE2020 bΓtiment : appartement chauffage individuel ecs collectif", "dpe issu d'une Θtude energie environement rΘglementaire RE2020 bΓtiment : appartement")
+   (21, "dpe issu d'une Θtude energie environement rΘglementaire RE2020 bΓtiment : immeuble", "dpe issu d'une Θtude energie environement rΘglementaire RE2020 bΓtiment : immeuble")
+   (22, "dpe issu d'une Θtude thermique rΘglementaire RT2012 bΓtiment : appartement chauffage individuel ecs individuel", "dpe issu d'une Θtude thermique rΘglementaire RT2012 bΓtiment : appartement")
+   (23, "dpe issu d'une Θtude thermique rΘglementaire RT2012 bΓtiment : appartement chauffage collectif ecs individuel", "dpe issu d'une Θtude thermique rΘglementaire RT2012 bΓtiment : appartement")
+   (24, "dpe issu d'une Θtude energie environement rΘglementaire RE2020 bΓtiment : appartement chauffage collectif ecs individuel", "dpe issu d'une Θtude energie environement rΘglementaire RE2020 bΓtiment : appartement")
+   (25, "dpe issu d'une Θtude energie environement rΘglementaire RE2020 bΓtiment : appartement chauffage individuel ecs individuel", "dpe issu d'une Θtude energie environement rΘglementaire RE2020 bΓtiment : appartement")
+   (26, 'dpe immeuble collectif chauffage mixte (collectif-individuel) ecs mixte (collectif-individuel)', 'dpe immeuble collectif')
+   (27, 'dpe immeuble collectif chauffage mixte (collectif-individuel) ecs individuel', 'dpe immeuble collectif')
+   (28, 'dpe immeuble collectif chauffage mixte (collectif-individuel) ecs collectif', 'dpe immeuble collectif')
+   (29, 'dpe immeuble collectif chauffage individuel ecs mixte (collectif-individuel)', 'dpe immeuble collectif')
+   (30, 'dpe immeuble collectif chauffage collectif ecs mixte (collectif-individuel)', 'dpe immeuble collectif')
+   (31, 'dpe appartement individuel chauffage mixte (collectif-individuel) ecs individuel', 'dpe appartement individuel')
+   (32, 'dpe appartement individuel chauffage mixte (collectif-individuel) ecs collectif', 'dpe appartement individuel')
+   (33, 'dpe appartement gΘnΘrΘ α partir des donnΘes DPE immeuble chauffage mixte (collectif-individuel) ecs individuel', 'dpe appartement gΘnΘrΘ α partir des donnΘes DPE immeuble')
+   (34, 'dpe appartement gΘnΘrΘ α partir des donnΘes DPE immeuble chauffage mixte (collectif-individuel) ecs collectif', 'dpe appartement gΘnΘrΘ α partir des donnΘes DPE immeuble')
+   (35, 'dpe appartement individuel chauffage mixte (collectif-individuel) ecs mixte (collectif-individuel)', 'dpe appartement individuel')
+   (36, 'dpe appartement individuel chauffage individuel ecs mixte (collectif-individuel)', 'dpe appartement individuel')
+   (37, 'dpe appartement individuel chauffage collectif ecs mixte (collectif-individuel)', 'dpe appartement individuel')
+   (38, 'dpe appartement gΘnΘrΘ α partir des donnΘes DPE immeuble chauffage mixte (collectif-individuel) ecs mixte (collectif-individuel)', 'dpe appartement gΘnΘrΘ α partir des donnΘes DPE immeuble')
+   (39, 'dpe appartement gΘnΘrΘ α partir des donnΘes DPE immeuble chauffage individuel ecs mixte (collectif-individuel)', 'dpe appartement gΘnΘrΘ α partir des donnΘes DPE immeuble')
+   (40, 'dpe appartement gΘnΘrΘ α partir des donnΘes DPE immeuble chauffage collectif ecs mixte (collectif-individuel)', 'dpe appartement gΘnΘrΘ α partir des donnΘes DPE immeuble')
+
+-- dpe_enum_periode_construction values --
+   (1, 'avant 1948', '2')
+   (2, '1948-1974', '2')
+   (3, '1975-1977', '3')
+   (4, '1978-1982', '3')
+   (5, '1983-1988', '3')
+   (6, '1989-2000', '3')
+   (7, '2001-2005', '3')
+   (8, '2006-2012', '3')
+   (9, '2013-2021', '3')
+   (10, 'aprΦs 2021', '3')
+
+-- dpe_enum_version values --
+   ('1', 'version du 1er juillet 2021', "version allΘgΘe du modΦle de donnΘe DPE sans le dΘtail de la modΘlisation enveloppe et systΦme pour le DPE logement existant et le DPE logement neuf. Ce type de DPE a ΘtΘ mis en place de maniΦre transitoire au dΘmarrage du nouvel observatoire. Les logiciels sont en cours d'Θvaluation")
+   ('1.1', 'version corrective du 1er novembre', "version allΘgΘe du modΦle de donnΘe DPE sans le dΘtail de la modΘlisation enveloppe et systΦme pour le DPE logement existant et le DPE logement neuf. Ce type de DPE a ΘtΘ mis en place de maniΦre transitoire au dΘmarrage du nouvel observatoire. Les logiciels sont en cours d'Θvaluation")
+   ('2', 'version avec modΦle complet sans contr⌠le de cohΘrence', "version complΦte du modΦle DPE pour la partie logement existant. La partie de description de l'enveloppe et des systΦmes est toujours optionnelle pour le DPE neuf. ")
+   ('2.1', 'version de fin de validation incluant les contr⌠les de cohΘrences', "version complΦte du modΦle DPE pour la partie logement existant. La partie de description de l'enveloppe et des systΦmes est toujours optionnelle pour le DPE neuf. Les logiciels sont ΘvaluΘs. Les contr⌠les de cohΘrences sont effectuΘs")
+   ('2.2', 'version de prΘparation de compatibilitΘ audit/dpe', 'version du modΦle DPE qui introduit de nouveaux champs obligatoires pour assurer une compatibilitΘ de reprise des xml DPE pour rΘaliser un audit. ')
+   ('2.3', 'version corrective de janvier 2023', 'des corrections sont apportΘes pour rendre le modΦle de DPE plus complet pour des usages de rΘimport de xml ADEME dans les logiciels DPE.')
+   ('2.4', "version correspondant α l'arrΩtΘ des seuils pour les petites surfaces", 'version qui correspond α l\'entrΘe en vigueur de l\'arrΩtΘ dit "des petites surfaces"')
+   ('2.5', "version correspondant α l'obligation de saisie du numΘro fiscal de local", '')
+   ('2.6', "version correspondant au changement du facteur de conversion en EP de l'ΘlectricitΘ ", "version correspondant α l'entrΘe en vigueur de l'arrΩtΘ sur le passage du facteur de conversion en energie primaire α 1,9 pour l'ΘlectricitΘ")
+
+dpe: 20,200,182 rows in 0.5s
+
+dpe_t_adresse: 20,200,182 rows in 0.2s

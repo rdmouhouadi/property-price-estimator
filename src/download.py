@@ -4,9 +4,14 @@ from tqdm import tqdm
 
 RAW = Path("data/raw")
 DVF_URL = "https://files.data.gouv.fr/geo-dvf/latest/csv/{y}/full.csv.gz"
-YEARS = range(2020, 2026)
+YEARS = range(2021, 2026)
 
 def fetch(url: str, dest: Path):
+    """
+    Fetch DVF data from the given URL and save it to the specified destination path. 
+    If the file already exists, it will skip downloading. 
+    The function creates necessary directories if they do not exist and shows a progress bar during the download process.
+    """
     if dest.exists():
         print(f"skip {dest}")
         return
