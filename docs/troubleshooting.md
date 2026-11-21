@@ -1,0 +1,92 @@
+# Troubleshooting
+
+Every error hit while building V1, in order. Format: **symptom → cause → fix**. Environment: Windows, PowerShell, VS Code, uv.
+
+## Environment and tooling
+
+**1. `uv add` not found, only `python -m uv` works**
+- *Cause:* uv was pip-installed into the Microsoft Store Python, whose `Scripts` folder isn't on PATH.
+- *Fix:* `python -m pip uninstall uv`, install standalone uv (`powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"` or `winget install astral-sh.uv`), reopen the terminal, and let uv manage Python (`uv python install 3.11`).
+
+**2. `uv add … shap` fails building `llvmlite==0.36.0` ("only versions >=3.6,<3.10 are supported")**
+- *Cause:* `requires-python = ">=3.11"` is open-ended. uv builds one lockfile for every Python in that range, including future ones, so it backtracked to an ancient llvmlite with no upper bound.
+- *Fix:* bound it, with `requires-python = ">=3.11,<3.13"`. Then `shap` was dropped entirely, since LightGBM/XGBoost provide TreeSHAP natively.
+
+**3. WSL: `uv: command not found`, no git identity, project on `/mnt/c`, running as root**
+- *Cause:* WSL is a separate Linux (it needs its own uv and git config). `/mnt/c` is slow and clashes with the Windows `.venv`.
+- *Fix:* went back to Windows PowerShell. If you use WSL: install uv inside it, keep the project in `~/`, and create a non-root user.
+
+**4. Folder typo `scr/` instead of `src/`**
+- *Fix:* `git mv scr src`, which keeps file history.
+
+**5. Pylance: `Import "tqdm" could not be resolved`**
+- *Cause:* VS Code isn't using the project's `.venv`.
+- *Fix:* *Python: Select Interpreter* → `.venv\Scripts\python.exe`, or `"python.defaultInterpreterPath"` in `.vscode/settings.json`.
+
+**12. `reports/dpe_schema.txt` missing at commit time**
+- *Cause:* `reports/` didn't exist when the output was redirected. Also, PowerShell `>` writes UTF-16.
+- *Fix:* `mkdir reports`, then `… | Out-File -Encoding utf8 reports/dpe_schema.txt`. Use `Add-Content`, not `echo >>`, for `.gitignore`.
+
+**18. `python -m …train_valid_model` exits instantly with no output**
+- *Cause:* `main()` never ran: the file was unsaved, or the `if __name__ == "__main__":` block was missing or mistyped.
+- *Fix:* save, check with `Get-Content <file> -Tail 5`.
+
+**19. `train_valid_model.py` committed empty (0 bytes)**
+- *Cause:* the code was in the editor but never saved.
+- *Fix:* `Get-ChildItem <folder> | Select-Object Name, Length` to spot 0-byte files, save, recommit. Enable *File → Auto Save*.
+
+## Data sources
+
+**6. DVF download: 404 for 2020**
+- *Cause:* geo-DVF keeps only the last five years.
+- *Fix:* `YEARS = range(2021, 2026)`. No loss, because the new DPE starts in July 2021.
+
+**7. No full DPE CSV on data.ademe.fr**
+- *Cause:* the portal is a table viewer, and the data.gouv "main file" is only a link.
+- *Fix:* ADEME's remote DuckDB access ([ADR-0003](adr/0003-dpe-source-remote-duckdb.md)).
+
+**11. Polars: `could not parse "14A" as dtype i64 at column 'lot1_numero'`**
+- *Cause:* the schema was inferred from the first rows. Later rows broke it.
+- *Fix:* read DVF with `infer_schema=False` (all strings), then cast only the needed numeric columns. Codes stay strings (leading zeros, `2A`/`2B`).
+
+**13. DuckDB `read_csv`: "Expected 40 columns, found 41" at line 2,335,553 of `dvf_2021.csv.gz`**
+- *Cause:* the quote character was auto-detected as "none" from a 20k-line sample, then a quoted street name containing a comma (`"RUE ANNE, COMTE DE TOURVILLE"`) split in two.
+- *Fix:* declare `delim=',', quote='"', escape='"'`. Don't use `ignore_errors`, which would silently drop real sales.
+
+## Memory and performance
+
+**9. How to set DuckDB's memory limit**
+- *Fix:* `SET memory_limit` to about 50–60% of RAM, `SET temp_directory` (for disk spill, with 20 GB free), `SET threads = 4`, `SET preserve_insertion_order = false`.
+
+**10. DuckDB `OutOfMemoryException` (5.5 GiB/5.5 GiB) on the 8-table remote DPE join**
+- *Cause:* one query building several 20M-row hash tables at once, over the network.
+- *Fix:* two stages, both resumable:
+  - (A) stream the needed columns of each table to local Parquet;
+  - (B) join locally in 8 hash buckets (`hash(dpe_id) % 8 = k`).
+
+## Type checker (Pylance) warnings
+
+None of these break at runtime. They come from libraries typing results as "X or None" or a union. The fix is to make the assumption explicit.
+
+**8. `reportOptionalSubscript` on `fetchone()[0]`, `reportOptionalMemberAccess` on `duckdb.sql(...).show()`**
+- *Fix:* `row = …fetchone(); assert row is not None`, and a small `show()` helper with `assert rel is not None`.
+
+**14. `reportReturnType` on LightGBM `.predict()` (`_LGBM_PredictReturnType` includes sparse matrices)**
+- *Fix:* `np.asarray(model.predict(X))`.
+
+**15. `reportAttributeAccessIssue`: `importances_std` on `dict[str, Bunch]`**
+- *Cause:* `permutation_importance` returns a dict when several scorers are passed.
+- *Fix:* `from sklearn.utils import Bunch` and `assert isinstance(pi, Bunch)`.
+
+**16. `reportArgumentType` flood on `LGBMRegressor(**LGBM_PARAMS)`**
+- *Cause:* `dict(...)` was inferred as `dict[str, float]`, so unpacking "passes float" to every parameter.
+- *Fix:* `LGBM_PARAMS: dict[str, Any] = {...}`.
+
+## Libraries
+
+**17. `LGBMDeprecationWarning: The argument 'eval_set' is deprecated, use 'eval_X' and 'eval_y'`**
+- *Status:* still works. Update when pinning versions for Docker.
+
+**20. No INFO log lines from scripts run with `python -m` (exit code 0)**
+- *Cause:* the module's `__name__` is `"__main__"`, outside the `property_price` logger tree where the handlers are, so INFO messages are dropped.
+- *Fix:* `get_logger` prefixes non-package names with `property_price.` ([ADR-0006](adr/0006-logging.md)).
