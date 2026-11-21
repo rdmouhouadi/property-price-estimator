@@ -10,12 +10,25 @@ FEATURES_PATH = "data/processed/features.parquet"
 SEED = 42
 
 CAT = ["type_bien", "code_departement"]
+
+#Was used before feature selection (importance)
+#BASE = CAT + ["surface_bati", "pieces", "surface_terrain", "n_dependances", "lat", "lon",
+#              "mkt_dept_12m", "mkt_commune_12m", "mkt_section_12m",
+#              "mkt_commune_n", "mkt_section_n", "t_months", "month"]
+
 BASE = CAT + ["surface_bati", "pieces", "surface_terrain", "n_dependances", "lat", "lon",
               "mkt_dept_12m", "mkt_commune_12m", "mkt_section_12m",
-              "mkt_commune_n", "mkt_section_n", "t_months", "month"]
+              "mkt_commune_n", "mkt_section_n"]
+
 DPE_CAT = ["dpe_energie"]
+
+#Was used before feature selection (importance)
+#DPE = BASE + DPE_CAT + ["dpe_class", "ges_class", "dpe_ep_m2", "dpe_periode",
+#                        "annee_construction", "etage", "nb_niveaux", "dpe_genere_immeuble"]
+
 DPE = BASE + DPE_CAT + ["dpe_class", "ges_class", "dpe_ep_m2", "dpe_periode",
-                        "annee_construction", "etage", "nb_niveaux", "dpe_genere_immeuble"]
+                        "annee_construction", "etage", "nb_niveaux"]
+
 CATEGORICAL = CAT + DPE_CAT
 EXTRA = ["y", "valeur", "date", "split", "has_dpe"]
 
