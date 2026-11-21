@@ -69,6 +69,8 @@ def get_logger(name: str) -> logging.Logger:
     Get a logger with the given name, configured with console and file handlers.
     """
     _configure()
+    if not name.startswith("property_price"):
+        name = f"property_price.{name}"
     return logging.getLogger(name)
 
 
