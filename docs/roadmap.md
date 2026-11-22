@@ -1,11 +1,11 @@
 # Roadmap
-
+ 
 ## V1: ML (done, 21 Nov 2026)
-
+ 
 Data prep for 4.2M sales and 15.7M DPEs, the DVF × DPE join, leak-free features, five models compared, LightGBM chosen, tested once on 2025 (median error 16.0%).
-
+ 
 ## Part 2: MLOps (next, 22 Nov 2026)
-
+ 
 - [ ] Convert `print` to the logger in `data/` scripts
 - [ ] DVC pipeline (`dvc.yaml` stages, parameters in `params.yaml`), DVC remote for prepared Parquet
 - [ ] MLflow tracking and model registry (champion alias)
@@ -20,7 +20,7 @@ Data prep for 4.2M sales and 15.7M DPEs, the DVF × DPE join, leak-free features
 - [ ] Write-up part 2
 
 ## V1.1: model improvements
-
+ 
 - [ ] Relax match uniqueness: keep a clearly best candidate (closest surface, then date)
 - [ ] Ablation: DPE strictly before the sale vs the +30-day tolerance
 - [ ] Prediction ranges: LightGBM quantile objective, with coverage measured (conformal calibration)
@@ -30,11 +30,31 @@ Data prep for 4.2M sales and 15.7M DPEs, the DVF × DPE join, leak-free features
 - [ ] Update LightGBM `eval_set` → `eval_X` / `eval_y`
 
 ## V1.5: app features
-
+ 
 - [ ] 3D view beside the price monitor: pydeck/deck.gl, DPE coordinates (`ban_x/ban_y`, Lambert-93 → WGS-84), buildings via the RNB ID
 - [ ] "Why this price": native TreeSHAP contributions as a waterfall
 
 ## V2: scale and scope
-
+ 
 - [ ] Cloud cluster when data justifies it ([ADR-0002](adr/0002-scale-out-trigger.md)): DVF+ since 2014, pre-2021 DPE, BDNB; minikube Spark first, then EMR Serverless
 - [ ] Energy-audit base: renovation cost vs value gain ("is renovating worth it?")
+
+## V3: value over time ("what will my home be worth in 10 years?")
+ 
+A **scenario projection**, not a forecast: a value curve for each of 4 explicit scenarios, shown as a fan chart, with the assumptions stated next to it.
+ 
+**Model:** value(t) = today's estimate (V1 model) × local price index path(t) under the scenario, plus a label adjustment (green-value gap from V1, Exp B).
+ 
+**Scenario drivers**
+- **Market:** historical local trend, or a stress path (e.g. a repeat of the 2023–2024 slowdown).
+- **Local development:** what is planned nearby. Dwellings authorised within 500 m (Sitadel building permits, dated, since 2013) and the PLU zone of the parcel, plus the share of to-be-urbanised land nearby (Géoportail de l'Urbanisme).
+- **Energy regulation:** rental bans by DPE label (G since 2025, F in 2028, E in 2034 as currently scheduled; the calendar is still debated, which is why it's a scenario variable).
+- **Owner choice:** keep the current label vs renovate (e.g. to C), using the energy-audit base for cost.
+**Default scenarios:** baseline (trend continues) · development (planned construction happens) · downturn (stress market) · renovation (label upgraded before the next ban).
+ 
+**Validation:** backtest what can be checked. Train on DVF+ up to year T, project 1–3 years, compare with real local price changes. The 10-year curves stay labelled as scenarios.
+ 
+**Data needed:** DVF+ since 2014 (longer history, which triggers [ADR-0002](adr/0002-scale-out-trigger.md)), Sitadel permits, PLU zones, the rental-ban calendar.
+ 
+
+ 

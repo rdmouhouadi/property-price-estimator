@@ -1,5 +1,7 @@
 <div align="center">
+
 # 🏠 Property Price Estimator
+
 ### What is a French home worth, and what is its energy rating worth?
  
 *From 20 million rows of public data to a price estimate anyone can use, on one laptop.*
@@ -12,6 +14,7 @@
 **Author:** Richie Mouhouadi
  
 </div>
+
 ---
  
 ## 🧭 What is it?
@@ -215,6 +218,9 @@ Relaxed match uniqueness → calibrated price ranges (quantile + conformal) → 
  
 ### V2: Scale & Scope ⬜
 Cloud cluster when the data justifies it (DVF since 2014, pre-2021 ratings) → renovation cost vs value gain
+ 
+### V3: Value Over Time ⬜
+"What will my home be worth in 10 years?" A value curve under 4 explicit scenarios (baseline, local development, downturn, renovation), driven by what's planned nearby (building permits, PLU zoning), energy-label rental bans and the owner's renovation choice. Short horizons are backtested; long horizons are shown as scenarios, not forecasts.
  
 > See [`docs/roadmap.md`](docs/roadmap.md) for the full task-level breakdown.
  
