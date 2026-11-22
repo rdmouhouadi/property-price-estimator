@@ -10,6 +10,9 @@ from property_price.logging_config import get_logger, log_metric
 from property_price.models.dataset import load
 from property_price.models.metrics import metrics
 
+import mlflow
+from property_price import tracking
+
 log = get_logger(__name__)
 ARTIFACTS = Path("artifacts")
 REPORT = Path("reports/test_metrics.json")
@@ -40,6 +43,15 @@ def main() -> None:
                       encoding="utf-8")
     print("\n" + pd.DataFrame(results).T.to_string())
     log.info("saved %s", REPORT)
+
+    tracking.setup()
+    with mlflow.start_run(run_id=meta["mlflow_run_id"]):
+        for seg, res in results.items():
+            key = seg.replace("=", "_")  # MLflow metric keys cannot contain '='
+            prefix = "test_" if seg == "overall" else f"test_{key}_"
+            mlflow.log_metrics({f"{prefix}{k}": v for k, v in res.items()})
+
+    tracking.promote_if_better(meta["model_version"], results["overall"]["mdape_pct"])
 
 
 if __name__ == "__main__":

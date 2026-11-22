@@ -143,8 +143,8 @@ stages:
       size: 5557
     - path: src/property_price/models/train_valid_model.py
       hash: md5
-      md5: 4a5210bf87c8c655947ef1f635eeeeda
-      size: 2507
+      md5: cce1bd910914455b7d2f14887541734a
+      size: 3651
     params:
       params.yaml:
         model:
@@ -161,8 +161,8 @@ stages:
     outs:
     - path: artifacts/metadata.json
       hash: md5
-      md5: e972164a956722261edb4ce706ad074d
-      size: 887
+      md5: 661db7cb643c0d7d34501c268adea0ec
+      size: 1100
     - path: artifacts/model.txt
       hash: md5
       md5: e1460f0fa1d81f0ab61e02325569562f
@@ -180,10 +180,10 @@ stages:
       size: 234250935
     - path: src/property_price/models/test_model.py
       hash: md5
-      md5: bd3264cf61a3d06b824836ecf69abaca
-      size: 1655
+      md5: 031f31a8df0ae0d840edf5957ab88d7e
+      size: 2152
     outs:
     - path: reports/test_metrics.json
       hash: md5
-      md5: 38d44b7871ecf6f508626449319a5d8a
+      md5: 5a5cd7afe6826e805e138ce8ea64f0f6
       size: 828
