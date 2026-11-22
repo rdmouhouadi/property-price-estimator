@@ -10,6 +10,7 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Python](https://img.shields.io/badge/python-3.11-blue)
 ![Status](https://img.shields.io/badge/status-Part%201%20Complete-brightgreen)
+![CI](https://github.com/rdmouhouadi/property-price-estimator/actions/workflows/ci.yml/badge.svg)
  
 **Author:** Richie Mouhouadi
  

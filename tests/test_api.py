@@ -1,8 +1,17 @@
+from pathlib import Path
+
+import pytest
 from fastapi.testclient import TestClient
 
 from property_price.serving import predictor as pred_module
 from property_price.serving.api import app
 from property_price.serving.geo import Location
+
+pytestmark = pytest.mark.skipif(
+    not Path("artifacts/model.txt").exists()
+    or not Path("data/processed/market_snapshot.parquet").exists(),
+    reason="model artifacts not available (CI)",
+)
 
 FAKE = Location(label="10 Rue de Rivoli 75004 Paris", code_commune="75104",
                 code_departement="75", lat=48.855, lon=2.360, score=0.95, section=None)

@@ -1,8 +1,10 @@
 """sales_enriched -> features.parquet (leak-free local market features, time split)."""
 from pathlib import Path
+
 import duckdb
-from property_price.params import params
+
 from property_price.dpe_rules import harmonised_sql
+from property_price.params import params
 
 SRC = "data/processed/sales_enriched.parquet"
 OUT = Path("data/processed/features.parquet")

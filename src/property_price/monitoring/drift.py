@@ -25,9 +25,9 @@ from pathlib import Path
 import duckdb
 import plotly.graph_objects as go
 
+from property_price.dpe_rules import CLASSES, class_index
 from property_price.logging_config import get_logger, log_metric
 from property_price.params import params
-from property_price.dpe_rules import CLASSES, class_index, EP_LIMITS, GES_LIMITS
 
 log = get_logger(__name__)
 DPE = "data/interim/dpe_flat/*.parquet"

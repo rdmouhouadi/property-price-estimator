@@ -7,19 +7,17 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-import pandas as pd
+import mlflow
+import mlflow.lightgbm as mlflow_lightgbm
 import numpy as np
+import pandas as pd
 
+from property_price import tracking
 from property_price.logging_config import RUN_ID, get_logger, log_metric
 from property_price.models import models_zoo
 from property_price.models.dataset import BASE, DPE, load
 from property_price.models.metrics import metrics
 from property_price.params import params
-
-import mlflow
-import mlflow.lightgbm as mlflow_lightgbm
-
-from property_price import tracking
 
 log = get_logger(__name__)
 ARTIFACTS = Path("artifacts")
@@ -36,7 +34,7 @@ def main() -> None:
     feats = FEATURE_SETS[fs]
 
     tracking.setup()
-    with mlflow.start_run(run_name=f"train-{RUN_ID}") as run:
+    with mlflow.start_run(run_name=f"train-{RUN_ID}"):
         mlflow.set_tags({"pipeline_run_id": RUN_ID, "feature_set": fs})
         mlflow.log_params(params("model") | {"n_features": len(feats), "features": feats})
 

@@ -3,15 +3,14 @@ import json
 from pathlib import Path
 
 import lightgbm as lgb
-import pandas as pd
+import mlflow
 import numpy as np
+import pandas as pd
 
+from property_price import tracking
 from property_price.logging_config import get_logger, log_metric
 from property_price.models.dataset import load
 from property_price.models.metrics import metrics
-
-import mlflow
-from property_price import tracking
 
 log = get_logger(__name__)
 ARTIFACTS = Path("artifacts")

@@ -1,5 +1,7 @@
 """Model zoo. Every model: fn(train, valid, feats) -> predictions of log(price/m2) on valid."""
 
+from typing import Any
+
 import lightgbm as lgb
 import numpy as np
 import pandas as pd
@@ -12,10 +14,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from property_price.models.dataset import CATEGORICAL, SEED, sample
-from typing import Any
-
 from property_price.params import params
-
 
 # max training rows per model (slow models are trained on a sample)
 TRAIN_CAP = {"baseline_section_market": 0, "ridge": 500_000, "random_forest": 300_000}

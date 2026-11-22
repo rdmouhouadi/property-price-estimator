@@ -100,6 +100,7 @@ class Predictor:
             lgb.Booster: The loaded LightGBM model."""
         if os.environ.get("MODEL_SOURCE", "file") == "mlflow":
             import mlflow.lightgbm as mlflow_lightgbm
+
             from property_price import tracking
             tracking.setup()
             m = mlflow_lightgbm.load_model(f"models:/{tracking.MODEL_NAME}@{tracking.CHAMPION}")

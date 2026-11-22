@@ -3,7 +3,6 @@ import pandas as pd
 import polars as pl
 
 from property_price.logging_config import get_logger, log_metric
-
 from property_price.params import params
 
 log = get_logger(__name__)
