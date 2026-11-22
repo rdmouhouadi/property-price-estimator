@@ -4,7 +4,7 @@
 
 Estimate a home's sale price from what an owner knows, plus the history of past sales nearby. Optionally include the energy rating (DPE), and measure what it adds. Keep the system able to retrain when the DPE calculation rules change.
 
-## V1: batch ML pipeline (done)
+## Part 1: batch ML pipeline (done, 21 Nov 2026)
 
 ```sh
                  SOURCES                         STORAGE (local, Parquet)                 COMPUTE
@@ -54,25 +54,60 @@ Estimate a home's sale price from what an owner knows, plus the history of past 
 5. **No leakage.** Market features use only sales before the one being estimated. Splits are by time. Test is scored once.
 6. **Observable.** Every step logs its row counts with a `run_id` ([ADR-0006](adr/0006-logging.md)).
 
-## Part 2: MLOps (planned, Sunday)
+## Part 2: MLOps (built 22 Nov 2026)
 
 ```sh
- GitHub Actions (weekly cron)                         DVC pipeline (params.yaml)
- ┌────────────────────────────┐      drift?           ┌───────────────────────────────────────┐
- │ pull new DPEs since last   │ ───── yes ──────────► │ harmonise → features → train → eval    │
- │ run → Evidently drift check│                       └───────────────┬───────────────────────┘
- └──────────┬─────────────────┘                                       │ challenger vs champion
-            │ no: log report                                           ▼ on newest sales
-            ▼                                          MLflow registry ("champion" alias)
-       logs / GitHub issue                                             │
-                                                                       ▼
-                                   Hugging Face Hub (model + card) ─► FastAPI /predict ─► Streamlit app
+                       params.yaml  (every setting, incl. dpe_rules.elec_coefficient)
+                            │
+   DVC pipeline (dvc.yaml)  ▼
+   download_dvf ─► clean_dvf ─┐
+   extract_dpe ───────────────┴► join ─► features ─► train ─► test ─► reports/test_metrics.json
+                                    │      ▲           │        │
+                                    │      │ dpe_rules │        └─► promote_if_better (gate)
+                                    │      │ .py       ▼                     │
+                                    │      │     MLflow run + registry ◄──────┘
+                                    ▼      │     (v1, v2…, alias "champion")
+                          market_snapshot  │                │
+                                    │      │                ▼
+                                    └──────┼────► FastAPI /estimate ◄── Streamlit app
+                                           │        ▲  IGN geocoding + cadastre
+                                           │
+   monitoring/drift.py ── reports/drift.json ──► retrain_on_drift.py
+   (implied coefficient,                        writes new coefficient → dvc repro test
+    label PSI all / electric)
+
+   GitHub Actions CI on every push: uv sync --locked · ruff · pytest · dvc dag
 ```
 
-- **Trigger 1, weekly:** input drift on new DPEs (class distribution, energy use per m², share of electric heating). This catches the coefficient change of 1 January 2027 ([ADR-0005](adr/0005-dpe-coefficient-drift.md)).
-- **Trigger 2, twice a year:** new DVF release (April / October) → accuracy check on fresh sales and retrain.
-- **Human gate:** a retrained model is promoted only if it beats the current one on the newest sales.
-- **Packaging:** Docker images for the pipeline and the app. IaC (Terraform) for an AWS target, validated locally with AWS Emulator.
+### Components added in part 2
+
+| Module | Role |
+|---|---|
+| `params.py` + `params.yaml` | one cached loader; every setting in one file |
+| `dvc.yaml` / `dvc.lock` | stages, dependencies, parameters per stage; `dvc repro` reruns what changed ([ADR-0007](adr/0007-pipeline-and-tracking.md)) |
+| `tracking.py` | MLflow setup, registry, `promote_if_better` gate |
+| `dpe_rules.py` | label thresholds, `harmonised_sql(coef, elec_ids)`; shared by features and drift |
+| `features/market_snapshot.py` | latest local market prices for serving |
+| `serving/geo.py` | address → commune, coordinates, cadastral section (IGN) |
+| `serving/predictor.py` | rebuilds the 21 features, estimate + range + price by label |
+| `serving/api.py` | FastAPI `/health`, `/estimate` ([ADR-0009](adr/0009-serving.md)) |
+| `app/streamlit_app.py` | user interface, calls the API |
+| `monitoring/drift.py` | implied coefficient + PSI checks, real and simulated → `reports/drift.json`, `drift.html` ([ADR-0008](adr/0008-drift-detector-design.md)) |
+| `monitoring/retrain_on_drift.py` | drift → edit `params.yaml` → `dvc repro test` → gate; `--simulate` for the demo |
+| `tests/`, `.github/workflows/ci.yml` | DPE rules unit tests, API test (mocked geocoding), CI |
+
+### Design principles added
+
+7. **One source of truth per rule.** The DPE coefficient lives in `params.yaml`; the label thresholds live in `dpe_rules.py`. Training, serving and monitoring all read the same ones.
+8. **Monitor the cause.** The drift detector measures the rule itself (implied coefficient), not only its diluted effect on labels.
+9. **Automation decides, people commit.** The retrain trigger leaves a diff (`params.yaml`, `dvc.lock`) and a registry decision; a person reviews and commits.
+10. **The API owns the model.** The UI is a client and can be replaced.
+
+### Not built yet
+
+- A schedule for the drift check (weekly cron) and an issue opened on drift.
+- Docker Compose for API + app; Terraform for an AWS target, validated with an AWS emulator.
+- Model and card on Hugging Face Hub.
 
 ## V2: scale-out (planned)
 

@@ -56,8 +56,8 @@ Columns of the two processed datasets. All identifiers are **strings** (see [ADR
 | `mkt_commune_12m` | same at commune level, shrunk toward département | ✓ |
 | `mkt_dept_12m` | same at département level | ✓ |
 | `mkt_section_n`, `mkt_commune_n` | number of past sales behind those averages | ✓ |
-| `dpe_class`, `ges_class` | label as ordinal 1 (A) … 7 (G); DPE class harmonised under 1.9 | ✓ |
-| `dpe_ep_m2` | energy use per m², harmonised | ✓ |
+| `dpe_class`, `ges_class` | label as ordinal 1 (A) … 7 (G); DPE class harmonised under `params.yaml` → `dpe_rules.elec_coefficient` (1.9 today) by `dpe_rules.harmonised_sql` | ✓ |
+| `dpe_ep_m2` | energy use per m², harmonised under the same coefficient | ✓ |
 | `dpe_periode`, `annee_construction`, `dpe_energie`, `etage`, `nb_niveaux` | from DPE | ✓ |
 | `t_months`, `month` | time index, month of year | ✗ dropped (no importance) |
 | `dpe_genere_immeuble` | see above | ✗ dropped (no importance) |

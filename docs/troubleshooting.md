@@ -1,6 +1,6 @@
 # Troubleshooting
 
-Every error hit while building V1, in order. Format: **symptom → cause → fix**. Environment: Windows, PowerShell, VS Code, uv.
+Every error hit while building the project (part 1: model, part 2: MLOps), grouped by area. Format: **symptom → cause → fix**. Environment: Windows, PowerShell, VS Code, uv.
 
 ## Environment and tooling
 
@@ -90,3 +90,26 @@ None of these break at runtime. They come from libraries typing results as "X or
 **20. No INFO log lines from scripts run with `python -m` (exit code 0)**
 - *Cause:* the module's `__name__` is `"__main__"`, outside the `property_price` logger tree where the handlers are, so INFO messages are dropped.
 - *Fix:* `get_logger` prefixes non-package names with `property_price.` ([ADR-0006](adr/0006-logging.md)).
+
+## Part 2: MLOps
+
+**21. Pylance on `client.get_run(champ.run_id)` in `tracking.promote_if_better`**
+- *Cause:* `ModelVersion.run_id` is typed `Optional[str]`, because a registered version can exist without a run.
+- *Fix:* read the alias inside `try/except`, then read the champion's metric only when `champ is not None and champ.run_id is not None`. Otherwise the champion's score is infinity, so the first model is always promoted.
+
+**22. `reportPrivateImportUsage`: "lightgbm" is not exported from module "mlflow"**
+- *Cause:* MLflow loads its flavours lazily, so `mlflow.lightgbm` isn't a declared export of `mlflow`.
+- *Fix:* `import mlflow.lightgbm as mlflow_lightgbm`, then call `mlflow_lightgbm.log_model(...)`. Keep `import mlflow` for `start_run` and `log_metrics`.
+
+**23. Pylance on `m.booster_` after `mlflow.lightgbm.load_model`**
+- *Cause:* the return type is `Booster | LGBMModel | None`.
+- *Fix:* `isinstance` checks: an `LGBMModel` gives `.booster_`, a `Booster` is used as is, anything else raises a `RuntimeError` at API startup, not at the first request.
+
+**24. `KeyError: 'electric_energy_ids'` in `build_features` during `retrain_on_drift` (`dvc repro` exit 255)**
+- *Cause:* the code reading the new parameter landed before the parameter itself was added to `params.yaml`.
+- *Fix:* add `dpe_rules.electric_energy_ids` (the IDs from the drift log), and make the `features` stage track the whole `dpe_rules` section in `dvc.yaml`, so DVC reruns it when the IDs change.
+- *Rule:* add a new parameter to `params.yaml` before the code that reads it.
+
+**25. `Object of type "DuckDBPyRelation" is not callable` on `duckdb.sql(q).fetchone()` (Pylance `reportCallIssue`)**
+- *Cause:* in duckdb's type stubs, `DuckDBPyRelation` resolves `fetchone` through a catch-all `__getattr__` that returns another relation. Runtime is fine.
+- *Fix:* use a connection, which is typed properly: `con = duckdb.connect()`, then `con.execute(q).fetchone()` and `assert row is not None`.

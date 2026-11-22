@@ -1,8 +1,8 @@
-# PLAYBOOK: tabular "big data" ML on one laptop
+# PLAYBOOK: tabular "big data" ML on one laptop, then MLOps
 
 A reusable recipe, distilled from this project. Generic steps and rules, without the dead ends (those are in [docs/build-journal.md](docs/build-journal.md) and [docs/troubleshooting.md](docs/troubleshooting.md)).
 
-*Part 2 (MLOps: pipeline, drift, retraining, serving) will be added after it's built.*
+Sections 1–10: the model. Sections 11–17: MLOps (pipeline, tracking, serving, monitoring, retraining, CI). Where to learn each tool: [docs/learning-references.md](docs/learning-references.md).
 
 ---
 
@@ -91,3 +91,69 @@ A reusable recipe, distilled from this project. Generic steps and rules, without
 - [ ] **Build journal**, chronological.
 - [ ] **Data dictionary, data lineage, model card** before calling V1 done.
 - [ ] Write-up for a portfolio: headline numbers first, the hard part, honest limits, what's next.
+- [ ] Log each step and each error **as it happens**. Reconstructing them later loses the dead ends, which are the useful part.
+
+---
+
+# Part 2: MLOps
+
+## 11. Pipeline (DVC)
+
+- [ ] **Wrap the existing modules; don't rewrite them.** One `dvc.yaml` stage per module: `cmd`, `deps` (code + inputs), `outs`, `params`.
+- [ ] Mark raw downloads `persist: true` so a rerun never deletes them.
+- [ ] Register outputs you already have with **`dvc commit -f`** instead of recomputing hours of work.
+- [ ] Test metrics as a DVC `metrics` file (`cache: false`, committed), so `dvc metrics diff` compares commits.
+- [ ] Keep exploration (model comparison, importance) **out** of the pipeline. The pipeline is what production reruns.
+- [ ] Check the graph with `dvc dag`. Screenshot it for the write-up.
+- [ ] Prove reproducibility once: `dvc repro --force` from raw data should give the same test score.
+
+## 12. Parameters
+
+- [ ] **Every knob in `params.yaml`**, read through one cached loader. No constants left in scripts.
+- [ ] Each stage declares the parameter **sections** it reads (a whole section, so new keys are tracked too).
+- [ ] **Add a new parameter before the code that reads it.** Or read it with a safe default.
+- [ ] A rule that can change by law (here, the electricity coefficient) is a parameter, not a constant.
+
+## 13. Tracking and registry (MLflow)
+
+- [ ] Local SQLite backend (`sqlite:///mlflow.db`), git-ignored. No server needed.
+- [ ] Training logs parameters, validation metrics and the model, and **registers a new version**. Test logs into the **same run**.
+- [ ] Production = an **alias** (`champion`), not a version number. The API loads the alias.
+- [ ] **Roles:** DVC = how things are produced; MLflow = what each run gave and what is in use.
+- [ ] **Promotion gate, done properly:**
+  - score the champion and the challenger on the **same** current test features;
+  - require a **margin** (e.g. 0.1 point), not just "lower";
+  - after a rule change, "not worse within a tolerance" is enough: the old model is stale under the new rule.
+
+## 14. Serving
+
+- [ ] **API owns the model; the UI is just a client.** FastAPI + Pydantic validation, model loaded once at startup (lifespan), `/health` returns the model version.
+- [ ] The API must rebuild **exactly the training features**. Ship the lookup tables it needs (here, a market snapshot) as a pipeline output, rebuilt with every run.
+- [ ] Map external-service failures to clear errors (404 not found, 503 service down). Never return a wrong estimate silently.
+- [ ] Show **a range next to every number**, and the disclaimer next to the number, not in a footer.
+- [ ] Respect the data licence in the product (here: `noindex`, no individual sales shown).
+- [ ] Mock external services in tests, so they run offline and in CI.
+- [ ] Try the app on contrasting real cases (city centre vs suburb). Differences between them are often the best finding.
+
+## 15. Monitoring
+
+- [ ] **Test every monitor against a simulated version of the drift before trusting it.** A blind monitor gives false confidence.
+- [ ] **Monitor the cause, not only the effects.** If you know what can change (a rule, a coefficient, a schema), measure it directly (here: median primary ÷ final energy for electric homes). Distribution tests on labels are diluted when only a segment is affected.
+- [ ] Keep a generic distribution test (PSI) as a secondary net for unknown changes, per segment as well as overall.
+- [ ] Two kinds of checks: **real** (must be stable: proves harmonisation works) and **simulated** (must fire: proves the detector works). Only real checks raise the alert.
+- [ ] Simulated results can be drift by construction. **Backtest on a real past event** if one exists.
+- [ ] One source of truth for the rules (a shared module), used by both features and monitoring.
+
+## 16. Retraining
+
+- [ ] Drift report (JSON) → trigger script → **edit the parameter** → `dvc repro` → gate. The pipeline does the work; the trigger only decides.
+- [ ] Keep a person in the loop: the trigger leaves a reviewable diff (`params.yaml`, `dvc.lock`); a human commits.
+- [ ] Demo with a `--simulate` flag, then **revert completely**: parameters, `dvc checkout`/`repro`, and the registry alias. Tag demo versions (e.g. `simulated`).
+- [ ] Don't revert files with `git checkout` when they also hold uncommitted changes you want to keep.
+
+## 17. CI
+
+- [ ] GitHub Actions on push and PR: `uv sync --locked` (fails on a stale lockfile), **ruff**, **pytest**, `dvc dag` (checks the pipeline definition without data).
+- [ ] CI has no data and no model: unit-test the logic on tiny in-memory tables (DuckDB), and **skip** tests that need artifacts when they're absent.
+- [ ] Test the rules that matter most (here: label thresholds, harmonisation at the old and new coefficient).
+- [ ] CI badge in the README. Screenshot the first green run.

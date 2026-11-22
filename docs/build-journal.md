@@ -64,4 +64,50 @@ What was done, in order, and why. Links point to the decisions (ADRs) and the pr
 
 ## Sunday 22 Nov 2026: the MLOps part
 
-*(to be written)*
+Started around 17:00. Order agreed up front: pipeline → parameters → tracking → serving → drift → retraining → CI. Docker and AWS were left for later.
+
+**18. Vision first: V3 "value over time".** Before starting, the long-term goal was added to the roadmap: a 10-year value curve under 4 explicit scenarios (baseline, local development, downturn, renovation), driven by PLU zoning, Sitadel building permits, DPE rental bans and the owner's renovation choice. It's a scenario projection, not a forecast ([roadmap](roadmap.md)).
+
+**19. DVC pipeline.** `uv add dvc`, `dvc init`, cache type `hardlink,copy`. `dvc.yaml` declares the stages over the existing modules: `download_dvf` (output `persist`, so raw data is never deleted) → `extract_dpe` → `clean_dvf` → `join` → `features` → `train` → `test`.
+- `reports/test_metrics.json` is a DVC metric, not cached.
+- `models_comparison` and `importance` stay out of the pipeline: they're exploration, not production.
+- `dvc commit -f` recorded the existing outputs without recomputing hours of work ([ADR-0007](adr/0007-pipeline-and-tracking.md)).
+
+**20. Parameters.** `params.yaml` holds every knob: DVF years, DPE start date, match rules, feature window and shrinkage, split dates, model settings, and `dpe_rules.elec_coefficient: 1.9`. A small loader (`params.py`, cached) replaced the constants in every script, and each `dvc.yaml` stage declares the parameter sections it reads. Values were unchanged, so `dvc commit -f` again.
+
+**21. MLflow.** SQLite backend (`mlflow.db`) plus `mlruns/`, both git-ignored. `tracking.py`:
+- experiment `property-price`, registered model `property-price-estimator`, alias `champion`;
+- `train_valid_model` logs parameters, validation metrics and the model, and registers a new version;
+- `test_model` logs test metrics into the same run, then calls `promote_if_better`: the new version becomes champion only if its test median error beats the champion's.
+- v1 promoted to champion (median error 15.96%). Issues: #21–#22.
+
+**22. Serving core.**
+- `market_snapshot` stage: the latest 12-month market prices per section, commune and département × type, so the API can rebuild the same features the model was trained on.
+- `serving/geo.py`: address → IGN Géoplateforme geocoding (`data.geopf.fr/geocodage`, which replaces the old `api-adresse.data.gouv.fr`) → API Carto cadastre (parcel → cadastral section).
+- `serving/predictor.py`: rebuilds the 21 features, returns the estimate, a typical range (± test median error for that property type) and a "what if the label were A…G" table. Loads the model from `artifacts/` or the MLflow champion. Issue: #23.
+
+**23. FastAPI.** `serving/api.py`: Pydantic-validated request, model loaded once at startup (lifespan), `GET /health`, `POST /estimate`, clean 404/503 errors, `X-Robots-Tag: noindex` (DVF terms). `tests/test_api.py` mocks geocoding, so it needs no network. First real call: 10 rue de Rivoli, Paris, 50 m² apartment, label D → **€587,000** (€11,750/m²).
+
+**24. Streamlit.** `app/streamlit_app.py` calls the API: form, estimate with range and €/m², map, and a bar chart *"What is my energy rating worth?"*. Second test, Le Pecq (78), same flat → €206,000.
+- Finding: G → A is worth **+4% in central Paris but +13% in Le Pecq**. The green value is bigger where location matters less ([model card](model-card.md)).
+
+**25. Drift detection, v1.** `monitoring/drift.py`: hand-written PSI (Population Stability Index) on the label distribution. Reference = harmonised labels of the 12 months before the test period. Two checks: recent real DPEs (expected stable, which proves harmonisation works) and the same DPEs relabelled at the 2027 coefficient, 1.7 (drift expected).
+- **Result:** real 0.017 stable, as expected. **Simulated 0.028, also "stable".** The monitor was blind to the very change it was built for: only electric-heated homes are affected, their energy figure drops ~10%, and labels only move near the thresholds, so the change is diluted in the whole population.
+
+**26. Drift detection, v2.** Three changes:
+- PSI on the **electric-heated segment** only: 0.033, still "stable", even though A went 4.1% → 6.3% and B 8.8% → 12.8%.
+- A detector on the **cause**: the *implied coefficient*, the median of primary ÷ final energy for electric-heated homes. Reference 1.905, recent real 1.900 (stable), simulated **1.70 (−10.75%, drift)**. It fires on the first new ratings, before any label distribution moves.
+- Bug fixed: `drift_detected` must count only real checks, not simulated ones.
+- Caveat: on simulated data, the implied coefficient is partly drift by construction. The real test is the 2.3 → 1.9 change of January 2026 (backtest pending, see [roadmap](roadmap.md)). Design: [ADR-0008](adr/0008-drift-detector-design.md).
+
+**27. Drift → retrain loop.**
+- `dpe_rules.py`: label thresholds and `harmonised_sql(coef, elec_ids)`, shared by features and drift, so both apply the same rule. At 1.9 it returns the original SQL, so nothing changes today.
+- `monitoring/retrain_on_drift.py [--simulate]`: reads `reports/drift.json`; if the implied coefficient drifted, it writes the new coefficient into `params.yaml` and runs `dvc repro test`.
+- First run failed on a missing parameter (#24).
+- **Demo at 1.7:** trigger → features rebuilt → retrained (2,966 trees) → v2 registered → test 15.94% → gate promoted v2 (15.94% < 15.96%).
+- **Finding:** the gate is too weak. 0.02 points is noise, and the two scores come from different test features (v2 at 1.7, v1 at 1.9). A fair gate scores the champion on the same features and requires a margin (roadmap V1.1).
+- Revert: champion alias back to v1, v2 tagged `simulated`, coefficient back to 1.9 in `params.yaml`, `dvc repro test`.
+
+**28. CI.** `ruff` (lint, imports) and `pytest` as dev tools. `tests/test_dpe_rules.py` tests the drift logic on an in-memory DuckDB table, no data needed: worst of energy and emissions, unchanged at 1.9, an electric home at 190 kWh/m² becomes 170 → D to C at 1.7. The API test is skipped when the model isn't there. `.github/workflows/ci.yml`: `uv sync --locked`, ruff, pytest, `dvc dag` (checks the pipeline definition without running it). **CI green.** Issue: #25.
+
+**29. Docs and write-up part 2.** This journal, PLAYBOOK part 2, troubleshooting #21–25, ADRs 0007–0009, [learning references](learning-references.md), model card, architecture, roadmap, README. Portfolio case study, part 2.
