@@ -4,6 +4,7 @@ Step 2: apply rules, keep unique matches, write enriched sales + lineage."""
 
 from pathlib import Path
 import duckdb
+from property_price.params import params
 
 DVF = "data/interim/dvf_sales.parquet"
 DPE = "data/interim/dpe_flat/*.parquet"
@@ -12,10 +13,11 @@ OUT = Path("data/processed/sales_enriched.parquet")
 N_BUCKETS = 8
 
 # matching rules (keep as params: we'll test variants)
-SURF_TOL = 0.10        # |surface_dpe - surface_dvf| / surface_dvf
-DAYS_BEFORE = 365      # DPE up to 1 year before the sale
-DAYS_AFTER = 30        # ... or up to 1 month after
-MIN_BAN_SCORE = 0.5    # geocoding confidence of the DPE address
+_m = params("match")
+SURF_TOL = _m["surf_tol"]
+DAYS_BEFORE = _m["days_before"]
+DAYS_AFTER = _m["days_after"]
+MIN_BAN_SCORE = _m["min_ban_score"]
 
 ABBR = [("AV", "AVENUE"), ("BD", "BOULEVARD"), ("BLD", "BOULEVARD"), ("CHE", "CHEMIN"),
         ("CHEM", "CHEMIN"), ("IMP", "IMPASSE"), ("ALL", "ALLEE"), ("PL", "PLACE"),

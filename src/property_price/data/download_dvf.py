@@ -1,10 +1,11 @@
 from pathlib import Path
 import requests
 from tqdm import tqdm
+from property_price.params import params
 
 RAW = Path("data/raw")
 DVF_URL = "https://files.data.gouv.fr/geo-dvf/latest/csv/{y}/full.csv.gz"
-YEARS = range(2021, 2026)
+YEARS = params("data")["dvf_years"]
 
 def fetch(url: str, dest: Path):
     """

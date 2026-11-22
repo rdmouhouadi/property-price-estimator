@@ -1,6 +1,7 @@
 stages:
   download_dvf:
     cmd: python -m property_price.data.download_dvf
+    params: [data.dvf_years]
     deps:
       - src/property_price/data/download_dvf.py
     outs:
@@ -9,6 +10,7 @@ stages:
 
   extract_dpe:
     cmd: python -m property_price.data.dpe_setup && python -m property_price.data.extract_dpe a b
+    params: [dpe.min_date]
     deps:
       - src/property_price/data/dpe_setup.py
       - src/property_price/data/extract_dpe.py
@@ -27,6 +29,7 @@ stages:
 
   join:
     cmd: python -m property_price.data.join_dvf_dpe
+    params: [match]
     deps:
       - src/property_price/data/join_dvf_dpe.py
       - data/interim/dvf_sales.parquet
@@ -37,6 +40,7 @@ stages:
 
   features:
     cmd: python -m property_price.features.build_features
+    params: [features, split]
     deps:
       - src/property_price/features/build_features.py
       - data/processed/sales_enriched.parquet
@@ -44,7 +48,8 @@ stages:
       - data/processed/features.parquet
 
   train:
-    cmd: python -m property_price.models.train_valid_model --features dpe
+    cmd: python -m property_price.models.train_valid_model
+    params: [model]
     deps:
       - src/property_price/models/train_valid_model.py
       - src/property_price/models/models_zoo.py

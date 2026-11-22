@@ -5,8 +5,16 @@ stages:
     deps:
     - path: src/property_price/data/download_dvf.py
       hash: md5
-      md5: 7ee57457d9d1765a960d92d319192e83
-      size: 1213
+      md5: e2d62cd72f88de0ebd027e8fe7b1d49e
+      size: 1265
+    params:
+      params.yaml:
+        data.dvf_years:
+        - 2021
+        - 2022
+        - 2023
+        - 2024
+        - 2025
     outs:
     - path: data/raw/dvf
       hash: md5
@@ -25,6 +33,9 @@ stages:
       hash: md5
       md5: a921ad4b39b00b74ed6628d824bea0eb
       size: 8210
+    params:
+      params.yaml:
+        dpe.min_date: '2021-07-01'
     outs:
     - path: data/interim/dpe_flat
       hash: md5
@@ -72,8 +83,15 @@ stages:
       size: 219363969
     - path: src/property_price/data/join_dvf_dpe.py
       hash: md5
-      md5: 294d2a7490d2ed5473b5d2d7217ca73a
-      size: 8697
+      md5: 0f2d47ebbc8bdb50d0c9892b9f0d0222
+      size: 8643
+    params:
+      params.yaml:
+        match:
+          surf_tol: 0.1
+          days_before: 365
+          days_after: 30
+          min_ban_score: 0.5
     outs:
     - path: data/interim/match_candidates
       hash: md5
@@ -93,15 +111,23 @@ stages:
       size: 237618766
     - path: src/property_price/features/build_features.py
       hash: md5
-      md5: 5e35b5afb42aeaba673a720ece909703
-      size: 3977
+      md5: d06ead5e682a6d0f11ed82c9b3ff58ae
+      size: 4190
+    params:
+      params.yaml:
+        features:
+          k_shrink: 20
+          window_days: 365
+        split:
+          valid_start: '2024-07-01'
+          test_start: '2025-01-01'
     outs:
     - path: data/processed/features.parquet
       hash: md5
       md5: 7c63e497abd1694f7d08e00229f34ffc
       size: 234250935
   train:
-    cmd: python -m property_price.models.train_valid_model --features dpe
+    cmd: python -m property_price.models.train_valid_model
     deps:
     - path: data/processed/features.parquet
       hash: md5
@@ -109,16 +135,29 @@ stages:
       size: 234250935
     - path: src/property_price/models/dataset.py
       hash: md5
-      md5: 4ec931607a6d9c5e4bae42e81dbaf516
-      size: 3087
+      md5: b2e14027e5f3efaeaa134ce431db4e66
+      size: 3187
     - path: src/property_price/models/models_zoo.py
       hash: md5
-      md5: dbf78d1715b3db796b09d38bbc7b4bb5
-      size: 5467
+      md5: 99f44cce12e94aa4a92bc4609e76eb7b
+      size: 5557
     - path: src/property_price/models/train_valid_model.py
       hash: md5
-      md5: 06f555139ba8b2acc83bdfafb9ecdb98
-      size: 2526
+      md5: 4a5210bf87c8c655947ef1f635eeeeda
+      size: 2507
+    params:
+      params.yaml:
+        model:
+          feature_set: dpe
+          seed: 42
+          learning_rate: 0.05
+          num_leaves: 255
+          min_child_samples: 50
+          subsample: 0.8
+          subsample_freq: 1
+          colsample_bytree: 0.8
+          max_trees: 3000
+          early_stopping_rounds: 100
     outs:
     - path: artifacts/metadata.json
       hash: md5

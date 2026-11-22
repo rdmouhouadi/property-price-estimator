@@ -4,10 +4,12 @@ import polars as pl
 
 from property_price.logging_config import get_logger, log_metric
 
+from property_price.params import params
+
 log = get_logger(__name__)
 
 FEATURES_PATH = "data/processed/features.parquet"
-SEED = 42
+SEED = params("model")["seed"]  # random seed for reproducibility
 
 CAT = ["type_bien", "code_departement"]
 

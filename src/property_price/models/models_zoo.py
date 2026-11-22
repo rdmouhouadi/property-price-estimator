@@ -14,6 +14,9 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from property_price.models.dataset import CATEGORICAL, SEED, sample
 from typing import Any
 
+from property_price.params import params
+
+
 # max training rows per model (slow models are trained on a sample)
 TRAIN_CAP = {"baseline_section_market": 0, "ridge": 500_000, "random_forest": 300_000}
 
@@ -81,22 +84,18 @@ def random_forest(t: pd.DataFrame, v: pd.DataFrame, feats: list[str]) -> np.ndar
     return np.asanyarray(m.fit(t[feats], t["y"]).predict(v[feats]))
 
 
+_p = params("model")
 LGBM_PARAMS: dict[str, Any] = {
-    "learning_rate": 0.05, 
-    "num_leaves": 255, 
-    "min_child_samples": 50,
-    "subsample": 0.8, 
-    "subsample_freq": 1, 
-    "colsample_bytree": 0.8,
-    "random_state": SEED, "verbose": -1,
-    }
+    k: _p[k] for k in ["learning_rate", "num_leaves", "min_child_samples", 
+                       "subsample", "subsample_freq", "colsample_bytree"]
+} | {"random_state": _p["seed"], "verbose": -1}
 
 
 def lightgbm_model(t: pd.DataFrame, v: pd.DataFrame, feats: list[str]) -> lgb.LGBMRegressor:
     """Fitted LightGBM, early stopping on valid (up to 3000 trees)."""
-    m = lgb.LGBMRegressor(n_estimators=3000, **LGBM_PARAMS)
+    m = lgb.LGBMRegressor(n_estimators=_p["max_trees"], **LGBM_PARAMS)
     m.fit(t[feats], t["y"], eval_set=[(v[feats], v["y"])],
-          callbacks=[lgb.early_stopping(100, verbose=False)])
+          callbacks=[lgb.early_stopping(_p["early_stopping_rounds"], verbose=False)])
     return m
 
 

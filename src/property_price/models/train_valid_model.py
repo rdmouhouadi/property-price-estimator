@@ -2,8 +2,8 @@
 (1) fit on train, early-stop on valid -> best number of trees + valid metrics
 (2) refit on train+valid with that number of trees -> save model + metadata
 Usage: python -m property_price.models.train_valid_model [--features base|dpe]"""
+
 import json
-import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -14,6 +14,7 @@ from property_price.logging_config import RUN_ID, get_logger, log_metric
 from property_price.models import models_zoo
 from property_price.models.dataset import BASE, DPE, load
 from property_price.models.metrics import metrics
+from property_price.params import params
 
 log = get_logger(__name__)
 ARTIFACTS = Path("artifacts")
@@ -26,7 +27,7 @@ def main() -> None:
     (1) Fit on train, early-stop on valid to determine the best number of trees and validation metrics.
     (2) Refit on train + valid with that number of trees, then save the model and metadata.
     """
-    fs = sys.argv[sys.argv.index("--features") + 1] if "--features" in sys.argv else "dpe"
+    fs = params("model")["feature_set"]
     feats = FEATURE_SETS[fs]
     df = load()
     train, valid = df[df.split == "train"], df[df.split == "valid"]

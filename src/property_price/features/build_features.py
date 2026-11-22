@@ -1,10 +1,13 @@
 """sales_enriched -> features.parquet (leak-free local market features, time split)."""
 from pathlib import Path
 import duckdb
+from property_price.params import params
 
 SRC = "data/processed/sales_enriched.parquet"
 OUT = Path("data/processed/features.parquet")
-K_SHRINK = 20  # pseudo-count for shrinking small-group averages toward the parent level
+K_SHRINK = params("features")["k_shrink"]  # pseudo-count for shrinkage of local market features
+WINDOW_DAYS = params("features")["window_days"]  # number of days for the moving average window
+_s = params("split") # number of months for the time-based split
 
 
 def window(part: str) -> str:
