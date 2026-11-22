@@ -40,7 +40,7 @@ stages:
 
   features:
     cmd: python -m property_price.features.build_features
-    params: [features, split]
+    params: [features, split, dpe_rules]
     deps:
       - src/property_price/features/build_features.py
       - data/processed/sales_enriched.parquet
@@ -77,3 +77,5 @@ stages:
     params: [features.window_days]
     outs:
       - data/processed/market_snapshot.parquet
+
+  

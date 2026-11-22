@@ -2,12 +2,15 @@
 from pathlib import Path
 import duckdb
 from property_price.params import params
+from property_price.dpe_rules import harmonised_sql
 
 SRC = "data/processed/sales_enriched.parquet"
 OUT = Path("data/processed/features.parquet")
 K_SHRINK = params("features")["k_shrink"]  # pseudo-count for shrinkage of local market features
 WINDOW_DAYS = params("features")["window_days"]  # number of days for the moving average window
 _s = params("split") # number of months for the time-based split
+_r = params("dpe_rules") # DPE harmonisation parameters
+DPE_CLASS_SQL, DPE_EP_SQL = harmonised_sql(_r["elec_coefficient"], _r["electric_energy_ids"])
 
 
 def window(part: str) -> str:
@@ -71,9 +74,9 @@ def main() -> None:
         month(date) AS month,
         -- DPE (null when no match)
         has_dpe,
-        list_position(['A','B','C','D','E','F','G'], coalesce(classe_dpe_pef19, classe_dpe)) AS dpe_class,
+        {DPE_CLASS_SQL} AS dpe_class, 
         list_position(['A','B','C','D','E','F','G'], classe_ges) AS ges_class,
-        coalesce(ep_m2_pef19, ep_m2) AS dpe_ep_m2,
+        {DPE_EP_SQL} AS dpe_ep_m2,
         periode_id AS dpe_periode, annee_construction, energie_id AS dpe_energie,
         etage, nb_niveaux, dpe_genere_immeuble, dpe_version,
         -- split

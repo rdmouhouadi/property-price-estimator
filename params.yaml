@@ -32,3 +32,4 @@ model:
 
 dpe_rules:                      # ADR-0005 (used by the harmonise step later)
   elec_coefficient: 1.9
+  electric_energy_ids: [1, 12]      # ← replace with the ids from the drift log

@@ -111,10 +111,15 @@ stages:
       size: 237618766
     - path: src/property_price/features/build_features.py
       hash: md5
-      md5: d06ead5e682a6d0f11ed82c9b3ff58ae
-      size: 4190
+      md5: ec0d90b4b651114af25cb4e9480aeda7
+      size: 4311
     params:
       params.yaml:
+        dpe_rules:
+          elec_coefficient: 1.9
+          electric_energy_ids:
+          - 1
+          - 12
         features:
           k_shrink: 20
           window_days: 365
@@ -124,15 +129,15 @@ stages:
     outs:
     - path: data/processed/features.parquet
       hash: md5
-      md5: 7c63e497abd1694f7d08e00229f34ffc
-      size: 234250935
+      md5: 6ceb2332de528d6b221b1f41570705cc
+      size: 234091248
   train:
     cmd: python -m property_price.models.train_valid_model
     deps:
     - path: data/processed/features.parquet
       hash: md5
-      md5: 7c63e497abd1694f7d08e00229f34ffc
-      size: 234250935
+      md5: 6ceb2332de528d6b221b1f41570705cc
+      size: 234091248
     - path: src/property_price/models/dataset.py
       hash: md5
       md5: b2e14027e5f3efaeaa134ce431db4e66
@@ -161,23 +166,23 @@ stages:
     outs:
     - path: artifacts/metadata.json
       hash: md5
-      md5: 661db7cb643c0d7d34501c268adea0ec
-      size: 1100
+      md5: 9366552efe5dd278af89b0ce20cc7c93
+      size: 1099
     - path: artifacts/model.txt
       hash: md5
-      md5: e1460f0fa1d81f0ab61e02325569562f
-      size: 62744719
+      md5: 7b65ba925f7bb96a0b8a8da192790b83
+      size: 70889029
   test:
     cmd: python -m property_price.models.test_model
     deps:
     - path: artifacts/model.txt
       hash: md5
-      md5: e1460f0fa1d81f0ab61e02325569562f
-      size: 62744719
+      md5: 7b65ba925f7bb96a0b8a8da192790b83
+      size: 70889029
     - path: data/processed/features.parquet
       hash: md5
-      md5: 7c63e497abd1694f7d08e00229f34ffc
-      size: 234250935
+      md5: 6ceb2332de528d6b221b1f41570705cc
+      size: 234091248
     - path: src/property_price/models/test_model.py
       hash: md5
       md5: 031f31a8df0ae0d840edf5957ab88d7e
@@ -185,7 +190,7 @@ stages:
     outs:
     - path: reports/test_metrics.json
       hash: md5
-      md5: 5a5cd7afe6826e805e138ce8ea64f0f6
+      md5: a2929860622a2609fd6607b404296d41
       size: 828
   market_snapshot:
     cmd: python -m property_price.features.market_snapshot

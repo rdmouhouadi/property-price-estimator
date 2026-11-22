@@ -4,6 +4,7 @@
     "2025-01-01"
   ],
   "recent_period_from": "2026-05-19",
+  "current_coefficient": 1.9,
   "simulated_coefficient": 1.7,
   "reference": {
     "A": 0.016,
@@ -14,9 +15,18 @@
     "F": 0.0493,
     "G": 0.0273
   },
+  "reference_electric": {
+    "A": 0.0413,
+    "B": 0.0876,
+    "C": 0.379,
+    "D": 0.2849,
+    "E": 0.1328,
+    "F": 0.0433,
+    "G": 0.0311
+  },
   "checks": [
     {
-      "name": "recent_real",
+      "name": "all_real",
       "psi": 0.017,
       "status": "stable",
       "distribution": {
@@ -30,18 +40,64 @@
       }
     },
     {
-      "name": "recent_simulated_coef_1.7",
-      "psi": 0.0281,
+      "name": "all_simulated_1.7",
+      "psi": 0.0285,
       "status": "stable",
       "distribution": {
-        "A": 0.0294,
-        "B": 0.0775,
-        "C": 0.3654,
-        "D": 0.2869,
-        "E": 0.1413,
-        "F": 0.0648,
-        "G": 0.0346
+        "A": 0.0304,
+        "B": 0.081,
+        "C": 0.3743,
+        "D": 0.2828,
+        "E": 0.1366,
+        "F": 0.0627,
+        "G": 0.0322
       }
+    },
+    {
+      "name": "electric_real",
+      "psi": 0.0057,
+      "status": "stable",
+      "distribution": {
+        "A": 0.05,
+        "B": 0.097,
+        "C": 0.3567,
+        "D": 0.2854,
+        "E": 0.1293,
+        "F": 0.052,
+        "G": 0.0297
+      }
+    },
+    {
+      "name": "electric_simulated_1.7",
+      "psi": 0.0329,
+      "status": "stable",
+      "distribution": {
+        "A": 0.063,
+        "B": 0.1277,
+        "C": 0.372,
+        "D": 0.2545,
+        "E": 0.1112,
+        "F": 0.0461,
+        "G": 0.0255
+      }
+    },
+    {
+      "name": "implied_coefficient_recent_real",
+      "value": 1.9,
+      "relative_change": 0.0025,
+      "status": "stable"
+    },
+    {
+      "name": "implied_coefficient_recent_simulated_1.7",
+      "value": 1.7,
+      "relative_change": 0.1075,
+      "status": "drift"
     }
-  ]
+  ],
+  "implied_coefficient": {
+    "reference": 1.905,
+    "recent_real": 1.9,
+    "recent_simulated_1.7": 1.7
+  },
+  "drift_detected": true
 }
