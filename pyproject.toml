@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "duckdb>=2.0.1",
+    "dvc>=3.67.1",
     "lightgbm>=4.7.0",
     "pandas>=3.1.1",
     "polars>=2.1.0",

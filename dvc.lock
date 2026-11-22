@@ -1,0 +1,150 @@
+schema: '2.0'
+stages:
+  download_dvf:
+    cmd: python -m property_price.data.download_dvf
+    deps:
+    - path: src/property_price/data/download_dvf.py
+      hash: md5
+      md5: 7ee57457d9d1765a960d92d319192e83
+      size: 1213
+    outs:
+    - path: data/raw/dvf
+      hash: md5
+      md5: 7acdf37d18660a085aa262a97abf726e.dir
+      size: 537474377
+      nfiles: 5
+  extract_dpe:
+    cmd: python -m property_price.data.dpe_setup && python -m 
+      property_price.data.extract_dpe a b
+    deps:
+    - path: src/property_price/data/dpe_setup.py
+      hash: md5
+      md5: 011c5b7de6f8c32f64db18e6a4850584
+      size: 1025
+    - path: src/property_price/data/extract_dpe.py
+      hash: md5
+      md5: a921ad4b39b00b74ed6628d824bea0eb
+      size: 8210
+    outs:
+    - path: data/interim/dpe_flat
+      hash: md5
+      md5: 0c183766fefa097e16db36ffbd1e6c4f.dir
+      size: 1374358226
+      nfiles: 8
+    - path: data/interim/dpe_parts
+      hash: md5
+      md5: 1822825a1f2ad721eb6b81e3b5b0064c.dir
+      size: 4138930407
+      nfiles: 8
+  clean_dvf:
+    cmd: python -m property_price.data.clean_dvf
+    deps:
+    - path: data/raw/dvf
+      hash: md5
+      md5: 7acdf37d18660a085aa262a97abf726e.dir
+      size: 537474377
+      nfiles: 5
+    - path: src/property_price/data/clean_dvf.py
+      hash: md5
+      md5: 45ca17b0c09b2d170425ff24c75c0668
+      size: 6455
+    outs:
+    - path: data/interim/dvf_raw
+      hash: md5
+      md5: 812ee0c969b547f9ac90219242d13272.dir
+      size: 489046442
+      nfiles: 5
+    - path: data/interim/dvf_sales.parquet
+      hash: md5
+      md5: f65574ed1be5b80bba823de81f390922
+      size: 219363969
+  join:
+    cmd: python -m property_price.data.join_dvf_dpe
+    deps:
+    - path: data/interim/dpe_flat
+      hash: md5
+      md5: 0c183766fefa097e16db36ffbd1e6c4f.dir
+      size: 1374358226
+      nfiles: 8
+    - path: data/interim/dvf_sales.parquet
+      hash: md5
+      md5: f65574ed1be5b80bba823de81f390922
+      size: 219363969
+    - path: src/property_price/data/join_dvf_dpe.py
+      hash: md5
+      md5: 294d2a7490d2ed5473b5d2d7217ca73a
+      size: 8697
+    outs:
+    - path: data/interim/match_candidates
+      hash: md5
+      md5: cfb4fcf30cfba404034025ad22b19f6c.dir
+      size: 308656545
+      nfiles: 8
+    - path: data/processed/sales_enriched.parquet
+      hash: md5
+      md5: 1c0ae5be9c4af74686f2b7d66242bb92
+      size: 237618766
+  features:
+    cmd: python -m property_price.features.build_features
+    deps:
+    - path: data/processed/sales_enriched.parquet
+      hash: md5
+      md5: 1c0ae5be9c4af74686f2b7d66242bb92
+      size: 237618766
+    - path: src/property_price/features/build_features.py
+      hash: md5
+      md5: 5e35b5afb42aeaba673a720ece909703
+      size: 3977
+    outs:
+    - path: data/processed/features.parquet
+      hash: md5
+      md5: 7c63e497abd1694f7d08e00229f34ffc
+      size: 234250935
+  train:
+    cmd: python -m property_price.models.train_valid_model --features dpe
+    deps:
+    - path: data/processed/features.parquet
+      hash: md5
+      md5: 7c63e497abd1694f7d08e00229f34ffc
+      size: 234250935
+    - path: src/property_price/models/dataset.py
+      hash: md5
+      md5: 4ec931607a6d9c5e4bae42e81dbaf516
+      size: 3087
+    - path: src/property_price/models/models_zoo.py
+      hash: md5
+      md5: dbf78d1715b3db796b09d38bbc7b4bb5
+      size: 5467
+    - path: src/property_price/models/train_valid_model.py
+      hash: md5
+      md5: 06f555139ba8b2acc83bdfafb9ecdb98
+      size: 2526
+    outs:
+    - path: artifacts/metadata.json
+      hash: md5
+      md5: e972164a956722261edb4ce706ad074d
+      size: 887
+    - path: artifacts/model.txt
+      hash: md5
+      md5: e1460f0fa1d81f0ab61e02325569562f
+      size: 62744719
+  test:
+    cmd: python -m property_price.models.test_model
+    deps:
+    - path: artifacts/model.txt
+      hash: md5
+      md5: e1460f0fa1d81f0ab61e02325569562f
+      size: 62744719
+    - path: data/processed/features.parquet
+      hash: md5
+      md5: 7c63e497abd1694f7d08e00229f34ffc
+      size: 234250935
+    - path: src/property_price/models/test_model.py
+      hash: md5
+      md5: bd3264cf61a3d06b824836ecf69abaca
+      size: 1655
+    outs:
+    - path: reports/test_metrics.json
+      hash: md5
+      md5: 38d44b7871ecf6f508626449319a5d8a
+      size: 828

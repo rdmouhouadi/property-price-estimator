@@ -1,0 +1,65 @@
+stages:
+  download_dvf:
+    cmd: python -m property_price.data.download_dvf
+    deps:
+      - src/property_price/data/download_dvf.py
+    outs:
+      - data/raw/dvf:
+          persist: true        # don't delete 5 years of downloads before rerunning
+
+  extract_dpe:
+    cmd: python -m property_price.data.dpe_setup && python -m property_price.data.extract_dpe a b
+    deps:
+      - src/property_price/data/dpe_setup.py
+      - src/property_price/data/extract_dpe.py
+    outs:
+      - data/interim/dpe_parts
+      - data/interim/dpe_flat
+
+  clean_dvf:
+    cmd: python -m property_price.data.clean_dvf
+    deps:
+      - src/property_price/data/clean_dvf.py
+      - data/raw/dvf
+    outs:
+      - data/interim/dvf_raw
+      - data/interim/dvf_sales.parquet
+
+  join:
+    cmd: python -m property_price.data.join_dvf_dpe
+    deps:
+      - src/property_price/data/join_dvf_dpe.py
+      - data/interim/dvf_sales.parquet
+      - data/interim/dpe_flat
+    outs:
+      - data/interim/match_candidates
+      - data/processed/sales_enriched.parquet
+
+  features:
+    cmd: python -m property_price.features.build_features
+    deps:
+      - src/property_price/features/build_features.py
+      - data/processed/sales_enriched.parquet
+    outs:
+      - data/processed/features.parquet
+
+  train:
+    cmd: python -m property_price.models.train_valid_model --features dpe
+    deps:
+      - src/property_price/models/train_valid_model.py
+      - src/property_price/models/models_zoo.py
+      - src/property_price/models/dataset.py
+      - data/processed/features.parquet
+    outs:
+      - artifacts/model.txt
+      - artifacts/metadata.json
+
+  test:
+    cmd: python -m property_price.models.test_model
+    deps:
+      - src/property_price/models/test_model.py
+      - artifacts/model.txt
+      - data/processed/features.parquet
+    metrics:
+      - reports/test_metrics.json:
+          cache: false
