@@ -1,0 +1,47 @@
+{
+  "reference_period": [
+    "2024-01-02",
+    "2025-01-01"
+  ],
+  "recent_period_from": "2026-05-19",
+  "simulated_coefficient": 1.7,
+  "reference": {
+    "A": 0.016,
+    "B": 0.0543,
+    "C": 0.41,
+    "D": 0.2997,
+    "E": 0.1434,
+    "F": 0.0493,
+    "G": 0.0273
+  },
+  "checks": [
+    {
+      "name": "recent_real",
+      "psi": 0.017,
+      "status": "stable",
+      "distribution": {
+        "A": 0.0244,
+        "B": 0.0669,
+        "C": 0.3673,
+        "D": 0.297,
+        "E": 0.1449,
+        "F": 0.0654,
+        "G": 0.0341
+      }
+    },
+    {
+      "name": "recent_simulated_coef_1.7",
+      "psi": 0.0281,
+      "status": "stable",
+      "distribution": {
+        "A": 0.0294,
+        "B": 0.0775,
+        "C": 0.3654,
+        "D": 0.2869,
+        "E": 0.1413,
+        "F": 0.0648,
+        "G": 0.0346
+      }
+    }
+  ]
+}
