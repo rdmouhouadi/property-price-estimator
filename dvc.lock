@@ -187,3 +187,22 @@ stages:
       hash: md5
       md5: 5a5cd7afe6826e805e138ce8ea64f0f6
       size: 828
+  market_snapshot:
+    cmd: python -m property_price.features.market_snapshot
+    deps:
+    - path: data/processed/sales_enriched.parquet
+      hash: md5
+      md5: 1c0ae5be9c4af74686f2b7d66242bb92
+      size: 237618766
+    - path: src/property_price/features/market_snapshot.py
+      hash: md5
+      md5: 262e78eae981e777a354f5339be2e095
+      size: 1681
+    params:
+      params.yaml:
+        features.window_days: 365
+    outs:
+    - path: data/processed/market_snapshot.parquet
+      hash: md5
+      md5: 1a8319e50e56987fe85455e556652c19
+      size: 3569789

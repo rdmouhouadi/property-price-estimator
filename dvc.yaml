@@ -68,3 +68,12 @@ stages:
     metrics:
       - reports/test_metrics.json:
           cache: false
+
+  market_snapshot:
+    cmd: python -m property_price.features.market_snapshot
+    deps:
+      - src/property_price/features/market_snapshot.py
+      - data/processed/sales_enriched.parquet
+    params: [features.window_days]
+    outs:
+      - data/processed/market_snapshot.parquet
