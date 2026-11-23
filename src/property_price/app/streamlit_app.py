@@ -1,12 +1,51 @@
 """Streamlit front end: calls the FastAPI service, shows the estimate and the energy-rating what-if."""
+
 import os
+
+
 
 import pandas as pd
 import plotly.graph_objects as go
 import requests
 import streamlit as st
 
-API_URL = os.environ.get("API_URL", "http://127.0.0.1:8000")
+import sys
+from pathlib import Path
+
+SRC = Path(__file__).resolve().parents[2]          # .../src
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
+API_URL = os.environ.get("API_URL")   # set -> call FastAPI; unset -> run the API in-process
+
+
+@st.cache_resource(show_spinner="Loading the model (first start only)...")
+def _local_client():
+    """Create a FastAPI TestClient that runs the API in-process (no network).
+    Returns:
+        A TestClient instance that can be used to call the API endpoints."""
+    from fastapi.testclient import TestClient
+
+    from property_price.serving.api import app
+
+    client = TestClient(app)
+    client.__enter__()          # runs FastAPI's lifespan: loads the predictor once
+    return client
+
+
+def call_api(method: str, path: str, **kwargs):
+    """Call the API, either via HTTP (if API_URL is set) or in-process (if not).
+    Args:
+        method (str): The HTTP method to use.
+        path (str): The API endpoint path.
+        **kwargs: Additional arguments for the request.
+    Returns:
+        The response from the API."""
+    if API_URL:
+        return requests.request(method, f"{API_URL}{path}", timeout=30, **kwargs)
+    return _local_client().request(method, path, **kwargs)
+
+
 CLASSES = list("ABCDEFG")
 
 st.set_page_config(page_title="What is my home worth?", page_icon="🏠", layout="wide")
@@ -45,7 +84,8 @@ if submitted:
         "etage": None if etage < 0 else int(etage),
     }
     try:
-        r = requests.post(f"{API_URL}/estimate", json=payload, timeout=30)
+        #r = requests.post(f"{API_URL}/estimate", json=payload, timeout=30) --- old code, replaced by call_api() to support in-process FastAPI
+        r = call_api("POST", "/estimate", json=payload)
     except requests.RequestException:
         st.error("The estimation service is unreachable. Is the API running?")
         st.stop()

@@ -124,7 +124,16 @@ Estimate a home's sale price from what an owner knows, plus the history of past 
  Twice a year (layer 4): new DVF release → score the champion on fresh sales
 ```
 
-Details and alternatives: [ADR-0010](adr/0010-deployment-and-monitoring.md).
+### App serving modes
+
+```sh
+ API_URL set     Streamlit ──HTTP──► FastAPI (uvicorn) ──► Predictor ──► model files
+ API_URL unset   Streamlit ──TestClient (in memory)──► FastAPI app ──► Predictor ──► model files
+                                                                          ▲
+                              hub.ensure_serving_files(): download from Hugging Face Hub if missing
+```
+
+Details and alternatives: [ADR-0010](adr/0010-deployment-and-monitoring.md), [ADR-0011](adr/0011-app-serving-modes.md), how-to and settings: [deployment.md](deployment.md).
 
 ## V2: scale-out (planned)
 

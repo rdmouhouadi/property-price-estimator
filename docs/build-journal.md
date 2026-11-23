@@ -124,3 +124,7 @@ Started around 17:00. Order agreed up front: pipeline → parameters → trackin
 - Consequences: freeze the drift reference; ask for the rating date in the app ([ADR-0008](adr/0008-drift-detector-design.md)). Write-up part 2 updated with the figure.
 
 **32. Plan: deploy and monitor.** The app goes to Streamlit Community Cloud, which runs only the UI. So: model and lookup files on Hugging Face Hub, an in-process mode in the app, slim requirements, then deploy. FastAPI follows with Docker. Monitoring set as four layers: pipeline runs (logs + MLflow), data (weekly drift job against a frozen reference, opens a GitHub issue), service (uptime ping), model quality (score the champion on each DVF release) ([ADR-0010](adr/0010-deployment-and-monitoring.md)).
+
+**33. Model on Hugging Face Hub.** `scripts/push_to_hub.py` (repo IDs from `.env`, run with `uv run --env-file .env`): `model.txt` (70.9 MB), `metadata.json`, `market_snapshot.parquet` (3.6 MB) and the model card. First try: 401, no valid token (#29); fixed with a Write token.
+
+**34. App in-process mode.** `serving/hub.py` downloads the serving files from the Hub only when missing. The app gets one `call_api()` function: with `API_URL` set it calls FastAPI over HTTP; without it, it runs the FastAPI app itself in memory through `TestClient`, cached with `st.cache_resource`. Same code path, same JSON, no duplicated logic. Tested both ways locally ([ADR-0011](adr/0011-app-serving-modes.md), [deployment.md](deployment.md)).

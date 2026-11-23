@@ -27,3 +27,8 @@ jobs:
 
       - name: Pipeline definition
         run: uv run dvc dag
+
+      - name: App requirements up to date
+        run: |
+          uv export --only-group app --no-hashes --no-emit-project -o /tmp/req.txt
+          diff /tmp/req.txt src/property_price/app/requirements.txt

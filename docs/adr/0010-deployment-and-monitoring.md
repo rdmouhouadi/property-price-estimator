@@ -12,7 +12,7 @@ The estimator runs on one laptop: FastAPI + Streamlit, model and market snapshot
 ### Deployment (V1 beta)
 
 1. **Model on Hugging Face Hub** (`model.txt`, `metadata.json`, `market_snapshot.parquet`, model card). It's the "downloadable model", and the place the app fetches its files from.
-2. **App with two modes.** `API_URL` set → the app calls FastAPI (local, or a future hosted API). Not set → the app runs the `Predictor` in-process and downloads the files from the Hub on first start (cached).
+2. **App with two modes** (details, trick and trade-offs: [ADR-0011](0011-app-serving-modes.md)). `API_URL` set → the app calls FastAPI (local, or a future hosted API). Not set → the app runs the `Predictor` in-process and downloads the files from the Hub on first start (cached).
 3. **Slim `requirements.txt`** for the app only (no MLflow, DVC, XGBoost): faster builds, within the free tier's memory.
 4. **Streamlit Community Cloud**, entrypoint `src/property_price/app/streamlit_app.py`, Python 3.11.
 

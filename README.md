@@ -152,7 +152,7 @@ The energy label is worth more where location weighs less.
 │                            ▼                                         │
 │              artifacts/model.txt + metadata.json                     │
 │                            │                                         │
-│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─│─ Part 2: MLOps ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─│─ Part 2: MLOps ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─    │
 │                            ▼                                         │
 │   DVC pipeline + params.yaml → MLflow registry ("champion")          │
 │                            │                                         │
@@ -214,17 +214,19 @@ Full design: [`docs/architecture.md`](docs/architecture.md).
 | Serving | ✅ | FastAPI `/estimate` (address → estimate, range, price by label) + Streamlit app |
 | Tests + CI (GitHub Actions) | ✅ | ruff, pytest, lockfile and pipeline checks |
 | Drift backtest on the real Jan 2026 change | ✅ | 2.30 → 1.90 (−17%) in the first month |
-| Model on Hugging Face Hub | 🔄 | Downloadable model + card ([ADR-0010](docs/adr/0010-deployment-and-monitoring.md)) |
-| Public app (Streamlit Community Cloud) | 🔄 | In-process predictor, files from the Hub |
+| Model on Hugging Face Hub | ✅ | [huggingface.co/rdmouhouadi/property-price-estimator](https://huggingface.co/rdmouhouadi/property-price-estimator) |
+| Public app (Streamlit Community Cloud) | 🔄 | In-process mode ✅ (tested locally), deploy next |
 | Live monitoring, 4 layers | 🔄 | Pipeline logs · weekly drift job (frozen reference) → GitHub issue · uptime · accuracy on each DVF release |
 | Docker + Terraform (AWS) | ⬜ | Validated locally with an AWS emulator |
+
+-----------|--------|-------------|
 | DVC pipeline + `params.yaml` | ⬜ | Reproducible stages, versioned data |
 | MLflow tracking + registry | ⬜ | Experiments, champion model |
 | Tests + CI (GitHub Actions) | ⬜ | pytest, schema checks, ruff, pipeline on a sample |
 | Drift detection | ⬜ | Weekly check on new ratings (Evidently) → retrain trigger |
 | Serving | ⬜ | FastAPI `/predict` + Streamlit app |
-| Model on Hugging Face Hub | 🔄 | Downloadable model + card ([ADR-0010](docs/adr/0010-deployment-and-monitoring.md)) |
-| Public app (Streamlit Community Cloud) | 🔄 | In-process predictor, files from the Hub |
+| Model on Hugging Face Hub | ✅ | [huggingface.co/rdmouhouadi/property-price-estimator](https://huggingface.co/rdmouhouadi/property-price-estimator) |
+| Public app (Streamlit Community Cloud) | 🔄 | In-process mode ✅ (tested locally), deploy next |
 | Live monitoring, 4 layers | 🔄 | Pipeline logs · weekly drift job (frozen reference) → GitHub issue · uptime · accuracy on each DVF release |
 | Docker + Terraform (AWS) | ⬜ | Validated locally with AWS Emulator |
 
@@ -245,7 +247,8 @@ This project is built to be reproducible and to teach, not just to work.
 | [`docs/models.md`](docs/models.md) | How each model works, pros and cons, books and videos to learn more |
 | [`docs/data-lineage.md`](docs/data-lineage.md) | Row counts at every step, raw → test |
 | [`docs/data-dictionary.md`](docs/data-dictionary.md) | Every column kept, its source and meaning |
-| [`docs/troubleshooting.md`](docs/troubleshooting.md) | Every error hit (28 so far): symptom → cause → fix |
+| [`docs/troubleshooting.md`](docs/troubleshooting.md) | Every error hit (29 so far): symptom → cause → fix |
+| [`docs/deployment.md`](docs/deployment.md) | Every setting (environment variables), how to publish the model and run each app mode |
 | [`docs/build-journal.md`](docs/build-journal.md) | What was done, in order, and why |
 | [`PLAYBOOK.md`](PLAYBOOK.md) | The reusable recipe: tabular big-data ML on one laptop, then MLOps |
 | [`docs/learning-references.md`](docs/learning-references.md) | Docs, books, courses and videos for every stage and tool |
@@ -328,9 +331,15 @@ uv run mlflow ui --backend-store-uri sqlite:///mlflow.db   # runs and registry
 
 ### 5. Serve
 
+The app runs in two modes ([ADR-0011](docs/adr/0011-app-serving-modes.md), settings in [`docs/deployment.md`](docs/deployment.md)):
+
 ```bash
+# in-process: the model runs inside the app (as on Streamlit Cloud); files fetched from Hugging Face if missing
+uv run --env-file .env streamlit run src/property_price/app/streamlit_app.py
+
+# remote API: the app calls FastAPI over HTTP (PowerShell)
 uv run uvicorn property_price.serving.api:app --reload      # API, docs at http://127.0.0.1:8000/docs
-uv run streamlit run src/property_price/app/streamlit_app.py # app (second terminal)
+$env:API_URL = "http://127.0.0.1:8000"; uv run streamlit run src/property_price/app/streamlit_app.py
 ```
 
 ### 6. Monitor and retrain
@@ -373,7 +382,8 @@ property-price-estimator/
 │   ├── serving/
 │   │   ├── geo.py                # address → commune, section (IGN)
 │   │   ├── predictor.py          # features, estimate, range, price by label
-│   │   └── api.py                # FastAPI /health, /estimate
+│   │   ├── api.py                # FastAPI /health, /estimate
+│   │   └── hub.py                # fetch model files from Hugging Face Hub if missing
 │   ├── app/
 │   │   └── streamlit_app.py      # user interface (calls the API)
 │   ├── dpe_rules.py              # label thresholds, harmonisation (shared)
@@ -391,12 +401,13 @@ property-price-estimator/
 ├── reports/                      # comparison, importance, test metrics, drift report
 │
 ├── docs/
-│   ├── adr/                      # 10 architecture decision records
+│   ├── adr/                      # 11 architecture decision records
 │   ├── architecture.md
 │   ├── data-dictionary.md
 │   ├── data-lineage.md
 │   ├── model-card.md
 │   ├── models.md
+│   ├── deployment.md             # settings (env vars), how to run each mode
 │   ├── learning-references.md
 │   ├── troubleshooting.md
 │   ├── build-journal.md

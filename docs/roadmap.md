@@ -30,8 +30,8 @@ Data prep for 4.2M sales and 15.7M DPEs, the DVF × DPE join, leak-free features
 Plan: [ADR-0010](adr/0010-deployment-and-monitoring.md).
 
 **Deploy**
-- [ ] Push model, metadata, market snapshot and model card to Hugging Face Hub
-- [ ] App in-process mode (no `API_URL` → `Predictor` in the app, files from the Hub, cached)
+- [x] Push model, metadata, market snapshot and model card to Hugging Face Hub
+- [x] App in-process mode (no `API_URL` → FastAPI app run in memory via `TestClient`, files from the Hub, cached), [ADR-0011](adr/0011-app-serving-modes.md)
 - [ ] Slim `requirements.txt` for the app
 - [ ] Deploy on Streamlit Community Cloud (Python 3.11)
 

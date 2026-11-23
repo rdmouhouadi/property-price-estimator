@@ -80,6 +80,14 @@ Where to go deeper on every stage of this project. For each one: the **official 
 - Docs: uv in GitHub Actions https://docs.astral.sh/uv/guides/integration/github/ · GitHub Actions https://docs.github.com/actions
 - Course: MLOps Zoomcamp, module 6 (best practices: tests, linting, CI/CD)
 
+### Deployment: model hub, serving modes, configuration ([ADR-0010](adr/0010-deployment-and-monitoring.md), [ADR-0011](adr/0011-app-serving-modes.md))
+- Docs: Hugging Face Hub, upload and download (`hf_hub_download`), model cards: https://huggingface.co/docs/huggingface_hub/guides/download · https://huggingface.co/docs/hub/model-cards
+- Docs: FastAPI *Testing* (`TestClient`, the in-process trick) https://fastapi.tiangolo.com/tutorial/testing/ · Starlette TestClient https://www.starlette.io/testclient/
+- Docs: Streamlit caching (`st.cache_resource`) https://docs.streamlit.io/develop/concepts/architecture/caching · Community Cloud and secrets https://docs.streamlit.io/deploy/streamlit-community-cloud
+- Read: The Twelve-Factor App, *Config*: https://12factor.net/config
+- Book: Huyen, *Designing ML Systems*, ch. 7 (deployment: model as a service vs embedded, online vs batch) · Lakshmanan et al., *ML Design Patterns*, *Stateless Serving Function*
+- Course: MLOps Zoomcamp, module 4 (deployment: web service vs batch)
+
 ## Next steps (not built yet)
 
 - Docker: https://docs.docker.com/get-started/ · Compose https://docs.docker.com/compose/

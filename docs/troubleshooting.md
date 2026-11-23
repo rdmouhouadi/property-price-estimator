@@ -125,3 +125,7 @@ None of these break at runtime. They come from libraries typing results as "X or
 **28. Pylance "Cannot access attribute `pl`" on `con.execute(q).pl()`**
 - *Cause:* a gap in duckdb's type stubs; works at runtime.
 - *Fix:* `fetchall()` for printing, and `COPY (query) TO 'file.csv' (HEADER)` to save.
+
+**29. `401 Unauthorized` ("Invalid username or password") on `api/repos/create` when pushing to Hugging Face**
+- *Cause:* no valid token reached the script: login not saved, a read-only or Inference token, or a wrong `HF_TOKEN` in `.env` overriding the login.
+- *Fix:* create a **Write** token (or fine-grained with repo create + write), `uv run hf auth login`, check with `uv run hf auth whoami`; or set `HF_TOKEN` in the git-ignored `.env`.

@@ -164,7 +164,11 @@ Sections 1–10: the model. Sections 11–17: MLOps (pipeline, tracking, serving
 ## 18. Deploy and monitor
 
 - [ ] **Publish the model where people can download it** (Hugging Face Hub: weights, metadata, lookup tables, model card). The app downloads from there too.
-- [ ] **One app, two modes:** call the API when `API_URL` is set, run the predictor in-process otherwise. The free hosts run the UI only.
+- [ ] **One app, two modes:** call the API when `API_URL` is set, run it in-process otherwise. Free hosts like Streamlit Cloud run the UI only.
+  - **In-process** = the model runs inside the app's own process (a function call). **Remote API** = the model runs in another process/service, reached over HTTP.
+  - Trick: embed the FastAPI app itself with `TestClient` + `st.cache_resource`, so both modes run the same code and return the same JSON. No duplicated logic.
+  - A model hub is **storage**: the app downloads the files once and runs the model itself.
+- [ ] **Configuration in environment variables** (`.env` git-ignored, `.env.example` committed, cloud secrets in the host's settings). Document every variable in one table.
 - [ ] **Slim requirements for the deployed app.** Training tools (MLflow, DVC, XGBoost) don't belong in it.
 - [ ] **Monitor in four layers**, and know which one alerts:
   1. **Pipeline runs:** structured logs with a `run_id`, followed live (`Get-Content file -Wait` / `tail -f`), plus the tracking UI.
