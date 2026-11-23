@@ -129,3 +129,11 @@ None of these break at runtime. They come from libraries typing results as "X or
 **29. `401 Unauthorized` ("Invalid username or password") on `api/repos/create` when pushing to Hugging Face**
 - *Cause:* no valid token reached the script: login not saved, a read-only or Inference token, or a wrong `HF_TOKEN` in `.env` overriding the login.
 - *Fix:* create a **Write** token (or fine-grained with repo create + write), `uv run hf auth login`, check with `uv run hf auth whoami`; or set `HF_TOKEN` in the git-ignored `.env`.
+
+**30. `uv sync` after deleting `.venv`: "Failed to install streamlit… `Scripts\streamlit.exe`: Access is denied (os error 5)"**
+- *Cause:* a running process (Streamlit or uvicorn from the old environment, a terminal with it still activated) or antivirus held the file.
+- *Fix:* stop the processes (`Get-Process streamlit, uvicorn, python | Stop-Process -Force`), `deactivate` or open a new terminal, `Remove-Item -Recurse -Force .venv`, `uv sync`.
+
+**31. CI lint fails with ruff I001 (unsorted imports) after adding `import sys` / `from pathlib import Path` to the app**
+- *Fix:* `uv run ruff check src tests --fix`. Keep `property_price` imports inside functions, or after the `sys.path` block with `# noqa: E402`. Run ruff before every commit (or a pre-commit hook).
+- *Related:* the "requirements up to date" CI step first compared with a copy exported to `/tmp`; it failed on uv's header comment (which records the output path). Regenerate in place and use `git diff --exit-code` instead.

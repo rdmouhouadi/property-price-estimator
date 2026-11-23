@@ -1,8 +1,8 @@
 <div align="center">
 
 # 🏠 Property Price Estimator
-
 ### What is a French home worth, and what is its energy rating worth?
+
 
 *From 20 million rows of public data to a price estimate anyone can use, on one laptop.*
 
@@ -13,6 +13,8 @@
 ![Status](https://img.shields.io/badge/status-Part%202%20Complete-brightgreen)
 
 **Author:** Richie Mouhouadi
+
+🌐 **Try it:** [property-price-estimator.streamlit.app](https://property-price-estimator.streamlit.app) · 🤗 **Model:** [huggingface.co/rdmouhouadi/property-price-estimator](https://huggingface.co/rdmouhouadi/property-price-estimator)
 
 </div>
 
@@ -136,7 +138,7 @@ The energy label is worth more where location weighs less.
 │   │ one row per sale     │          │ bucketed join, 15.7M     │     │
 │   │ 4.25M sales          │          │ ratings                  │     │
 │   └──────────┬───────────┘          └────────────┬─────────────┘     │
-│              └─────────────┬─────────────────────┘                   │
+│              └─────────────┬──────────────────────┘                  │
 │                            ▼                                         │
 │              ┌───────────────────────────┐                           │
 │              │  Address join (DuckDB)    │  604,773 matches          │
@@ -215,18 +217,16 @@ Full design: [`docs/architecture.md`](docs/architecture.md).
 | Tests + CI (GitHub Actions) | ✅ | ruff, pytest, lockfile and pipeline checks |
 | Drift backtest on the real Jan 2026 change | ✅ | 2.30 → 1.90 (−17%) in the first month |
 | Model on Hugging Face Hub | ✅ | [huggingface.co/rdmouhouadi/property-price-estimator](https://huggingface.co/rdmouhouadi/property-price-estimator) |
-| Public app (Streamlit Community Cloud) | 🔄 | In-process mode ✅ (tested locally), deploy next |
+| Public app (Streamlit Community Cloud) | ✅ | [property-price-estimator.streamlit.app](https://property-price-estimator.streamlit.app), in-process mode, model from the Hub |
 | Live monitoring, 4 layers | 🔄 | Pipeline logs · weekly drift job (frozen reference) → GitHub issue · uptime · accuracy on each DVF release |
 | Docker + Terraform (AWS) | ⬜ | Validated locally with an AWS emulator |
-
------------|--------|-------------|
 | DVC pipeline + `params.yaml` | ⬜ | Reproducible stages, versioned data |
 | MLflow tracking + registry | ⬜ | Experiments, champion model |
 | Tests + CI (GitHub Actions) | ⬜ | pytest, schema checks, ruff, pipeline on a sample |
 | Drift detection | ⬜ | Weekly check on new ratings (Evidently) → retrain trigger |
 | Serving | ⬜ | FastAPI `/predict` + Streamlit app |
 | Model on Hugging Face Hub | ✅ | [huggingface.co/rdmouhouadi/property-price-estimator](https://huggingface.co/rdmouhouadi/property-price-estimator) |
-| Public app (Streamlit Community Cloud) | 🔄 | In-process mode ✅ (tested locally), deploy next |
+| Public app (Streamlit Community Cloud) | ✅ | [property-price-estimator.streamlit.app](https://property-price-estimator.streamlit.app), in-process mode, model from the Hub |
 | Live monitoring, 4 layers | 🔄 | Pipeline logs · weekly drift job (frozen reference) → GitHub issue · uptime · accuracy on each DVF release |
 | Docker + Terraform (AWS) | ⬜ | Validated locally with AWS Emulator |
 

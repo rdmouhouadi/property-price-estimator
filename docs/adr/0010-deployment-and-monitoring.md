@@ -1,6 +1,6 @@
 # ADR-0010: Deployment and live monitoring
 
-- **Status:** accepted (plan) · in progress
+- **Status:** accepted · deployed 23 Nov 2026: https://property-price-estimator.streamlit.app (monitoring layers 2–4 in progress)
 - **Date:** 2026-11-23
 
 ## Context

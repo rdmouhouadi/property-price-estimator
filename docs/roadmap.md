@@ -32,8 +32,8 @@ Plan: [ADR-0010](adr/0010-deployment-and-monitoring.md).
 **Deploy**
 - [x] Push model, metadata, market snapshot and model card to Hugging Face Hub
 - [x] App in-process mode (no `API_URL` → FastAPI app run in memory via `TestClient`, files from the Hub, cached), [ADR-0011](adr/0011-app-serving-modes.md)
-- [ ] Slim `requirements.txt` for the app
-- [ ] Deploy on Streamlit Community Cloud (Python 3.11)
+- [x] Pinned app-only requirements (`dependency-groups.app` → `uv export` → `src/property_price/app/requirements.txt`, checked in CI)
+- [x] Deployed on Streamlit Community Cloud (Python 3.11): https://property-price-estimator.streamlit.app
 
 **Monitor (four layers)**
 - [ ] 1. Pipeline runs: JSON-lines logs per `run_id` + MLflow UI (in place; document how to follow live)

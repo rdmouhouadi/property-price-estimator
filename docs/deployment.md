@@ -36,8 +36,18 @@ To test the Hub download locally, rename `artifacts/` temporarily and start in-p
 
 ## Streamlit Community Cloud
 
-1. App-only `requirements.txt` (no MLflow, DVC, XGBoost).
+Live: **https://property-price-estimator.streamlit.app**
+
+1. App-only, **pinned** requirements, generated from the lock file (never by hand):
+   ```sh
+   # pyproject.toml: [dependency-groups] app = ["streamlit", "fastapi", "httpx", ...]
+   uv lock
+   uv export --only-group app --no-hashes --no-emit-project -o src/property_price/app/requirements.txt
+   ```
+   The file sits **next to the entrypoint**: Community Cloud uses the first dependency file it finds, searching the entrypoint's folder before the repo root, and prefers `uv.lock` over `requirements.txt`. At the root, it would install the full `uv.lock` (MLflow, DVC…). CI regenerates it and fails if it differs (`git diff --exit-code`).
+   Smoke test before deploying: a throwaway venv with only this file (`uv venv .venv-app` → `uv pip install -r … --python .venv-app` → run the app).
 2. share.streamlit.io → New app → this repo, branch `main`, entrypoint `src/property_price/app/streamlit_app.py`, Python 3.11 (Advanced settings).
+   The app adds `src/` to `sys.path` at the top of `streamlit_app.py` (the package isn't installed on the cloud).
 3. **Secrets:** `HF_REPO_ID = "rdmouhouadi/property-price-estimator"`. Leave `API_URL` unset.
 4. First visit: model download + load (cold start). The app sleeps after inactivity.
 
