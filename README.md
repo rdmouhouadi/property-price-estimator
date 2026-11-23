@@ -213,8 +213,6 @@ Full design: [`docs/architecture.md`](docs/architecture.md).
 | Drift backtest on the real Jan 2026 change | ⬜ | Monthly implied coefficient, 2.3 → 1.9 |
 | Model on Hugging Face Hub | ⬜ | Downloadable model + card |
 | Docker + Terraform (AWS) | ⬜ | Validated locally with an AWS emulator |
-
------------|--------|-------------|
 | DVC pipeline + `params.yaml` | ⬜ | Reproducible stages, versioned data |
 | MLflow tracking + registry | ⬜ | Experiments, champion model |
 | Tests + CI (GitHub Actions) | ⬜ | pytest, schema checks, ruff, pipeline on a sample |
