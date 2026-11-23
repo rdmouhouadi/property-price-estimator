@@ -30,5 +30,5 @@ jobs:
 
       - name: App requirements up to date
         run: |
-          uv export --only-group app --no-hashes --no-emit-project -o /tmp/req.txt
-          diff /tmp/req.txt src/property_price/app/requirements.txt
+          uv export --only-group app --no-hashes --no-emit-project -o src/property_price/app/requirements.txt
+          git diff --exit-code src/property_price/app/requirements.txt
