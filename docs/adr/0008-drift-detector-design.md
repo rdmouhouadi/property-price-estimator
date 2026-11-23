@@ -1,6 +1,6 @@
 # ADR-0008: Drift detector design, monitor the rule, not only its effects
 
-- **Status:** accepted (detector and retrain loop) · pending (backtest on the real January 2026 change)
+- **Status:** accepted (detector, retrain loop, real-event backtest 23 Nov 2026) · proposed (frozen reference)
 - **Date:** 2026-11-22
 
 ## Context
@@ -21,6 +21,21 @@ The usual approach is a distribution test on the label (PSI, as in Evidently's p
 
 The change is diluted: most homes aren't electric, and most electric ones don't cross a threshold. **A monitor that can't see the change it was built for gives false confidence.**
 
+## Real-event backtest (23 Nov 2026)
+
+`scripts/backtest_implied_coef.py` replays the detector on the real change of 1 January 2026 (2.3 → 1.9), electric-heated homes, by month.
+
+| | Jul–Dec 2025 | Jan–Jun 2026 |
+|---|---:|---:|
+| Implied coefficient, **as issued** | 2.301–2.302 | 1.900–1.901 |
+| Implied coefficient, **as published today** | 1.905 | 1.900–1.901 |
+| Share of ratings whose printed label = published label | 53–55% | 100% |
+
+- **The detector works on the real event:** a 17.4% drop against a 3% alert level, visible in the first month (~100,000 ratings).
+- **ADEME restates history.** The main columns (`ep_conso_5_usages_m2`, `classe_bilan_dpe`) of older ratings now hold the values recalculated at 1.9. The values as issued are kept in `ancienne_*_pef` columns. Our first backtest, on the main columns, showed no step at all.
+- **Consequence for monitoring:** a reference recomputed from the current snapshot moves with a restatement, and the detector goes blind. **The reference must be frozen:** computed once from the snapshot used for training, saved (e.g. `reports/drift_reference.json`, committed), and compared against on every run.
+- **Consequence for serving:** about 46% of electric-heated homes rated in H2 2025 hold a certificate whose label is worse than the published one the model learned. The app should ask for the rating date and re-label pre-2026 electric ratings with `dpe_rules`.
+
 ## Decision
 
 - **Primary detector, on the cause:** the *implied coefficient*, median(primary ÷ final energy) over recent electric-heated DPEs. Alert when it moves more than 3% from the reference. It reacts on the first ratings issued under a new rule.
@@ -39,7 +54,8 @@ The change is diluted: most homes aren't electric, and most electric ones don't 
 ## Consequences
 
 - Lesson for the PLAYBOOK: **test every monitor against a simulated version of the drift before trusting it**, and **monitor the cause (the rule), not only downstream effects**.
-- Caveat: on simulated data, the implied coefficient moves partly by construction. The honest test is the real 2.3 → 1.9 change of January 2026: the monthly implied coefficient over Jul 2025 – Jun 2026 should step from ~2.3 to ~1.9. Pending.
+- Caveat: on simulated data, the implied coefficient moves partly by construction. The real 2.3 → 1.9 change of January 2026 confirms it on real data (see above).
+- Lesson for the PLAYBOOK: **never assume a source keeps its history as it was.** Check whether old records are restated, and freeze monitoring references.
 - The approximation (no small-surface rule, mixed energies scaled on total primary energy) is stated in the model card.
 
 ## References

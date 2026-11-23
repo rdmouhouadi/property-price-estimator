@@ -113,3 +113,15 @@ None of these break at runtime. They come from libraries typing results as "X or
 **25. `Object of type "DuckDBPyRelation" is not callable` on `duckdb.sql(q).fetchone()` (Pylance `reportCallIssue`)**
 - *Cause:* in duckdb's type stubs, `DuckDBPyRelation` resolves `fetchone` through a catch-all `__getattr__` that returns another relation. Runtime is fine.
 - *Fix:* use a connection, which is typed properly: `con = duckdb.connect()`, then `con.execute(q).fetchone()` and `assert row is not None`.
+
+**26. CI badge shows as a broken image, then "no status"**
+- *Cause:* the workflow file was `ci.yaml` but the badge URL pointed to `ci.yml`. After renaming, the badge showed "no status": the renamed file is a new workflow with no history yet, and GitHub caches badge images.
+- *Fix:* match the file name exactly (or copy the markdown from Actions → workflow → "…" → *Create status badge*), and pin the branch: `badge.svg?branch=main`.
+
+**27. PowerShell `ParserError` on `uv run python -c "...duckdb.sql(\"SELECT ...\")"`**
+- *Cause:* PowerShell doesn't treat `\"` as an escaped quote (it uses a backtick or doubled quotes), so the string breaks.
+- *Fix:* put any Python with nested quotes in a script file under `scripts/` instead of a `-c` one-liner.
+
+**28. Pylance "Cannot access attribute `pl`" on `con.execute(q).pl()`**
+- *Cause:* a gap in duckdb's type stubs; works at runtime.
+- *Fix:* `fetchall()` for printing, and `COPY (query) TO 'file.csv' (HEADER)` to save.

@@ -64,12 +64,13 @@ Validation (H2 2024): median error 16.3%, within 20% 58.4%. Test ≈ validation,
 ### Observations from the app
 
 - Same 50 m² apartment, label D: **10 rue de Rivoli, Paris 4e → €587,000 (€11,750/m²), G → A +4%**; **Le Pecq (78) → €206,000 (€4,127/m²), G → A +13%**. The green value is larger where location weighs less in the price.
+- **Pre-2026 certificates (electric heating):** ADEME restated older ratings at the 1.9 coefficient, and the model learned the restated labels. About 46% of electric-heated homes rated in H2 2025 hold a certificate with a worse label than the published one. Users entering such a label get an estimate biased slightly low. Not yet corrected in the app (planned: ask for the rating date and re-label).
 - In central Paris, A and B give the same estimate (a plateau): few A/B sales there, so the trees don't split between them. Read differences between neighbouring labels as rough.
 
 ## Risks and drift
 
 - **DPE rule changes:** the electricity coefficient went from 2.3 to 1.9 on 1 Jan 2026 and goes to 1.7 on 1 Jan 2027. Training labels are harmonised under 1.9. Labels issued from 2027 will not mean the same thing until the model is retrained ([ADR-0005](adr/0005-dpe-coefficient-drift.md)).
-- **Monitoring** ([ADR-0008](adr/0008-drift-detector-design.md)): the primary detector is the implied coefficient (median primary ÷ final energy for electric-heated homes, alert at ±3%). Label PSI, overall and for electric homes, is a secondary check: in a simulation of the 2027 change it stayed under its alert threshold.
+- **Monitoring** ([ADR-0008](adr/0008-drift-detector-design.md)): the primary detector is the implied coefficient (median primary ÷ final energy for electric-heated homes, alert at ±3%). Replayed on the real January 2026 change, it drops from 2.30 to 1.90 (−17%) in the first month. The reference must be frozen, because ADEME restates history. Label PSI, overall and for electric homes, is a secondary check: in a simulation of the 2027 change it stayed under its alert threshold.
 - **Retraining:** a drift alert writes the new coefficient into `params.yaml` and reruns the pipeline. Re-labelling is approximate: electric-heated homes are re-scored with 2021 thresholds (energy and emissions, worst of both), without the small-surface rule, and mixed-energy homes are scaled on total primary energy.
 - **Demo at 1.7 (simulated):** retrained model v2 scored 15.94% median error vs 15.96%. It was promoted, then reverted (tagged `simulated`). The promotion gate compares scores computed on different features and has no margin, so this difference is noise. Fix planned (V1.1).
 - **Market shifts:** prices move. Market features use the previous 12 months, and the model should be retrained after each DVF release (April / October).

@@ -1,11 +1,12 @@
 <div align="center">
 
 # 🏠 Property Price Estimator
+
 ### What is a French home worth, and what is its energy rating worth?
 
 *From 20 million rows of public data to a price estimate anyone can use, on one laptop.*
 
-![CI](https://github.com/rdmouhouadi/property-price-estimator/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/rdmouhouadi/property-price-estimator/actions/workflows/ci.yml/badge.svg?branch=main)
 ![Version](https://img.shields.io/badge/version-v0.2.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Python](https://img.shields.io/badge/python-3.11-blue)
@@ -104,6 +105,8 @@ Limits, risks and intended use: [model card](docs/model-card.md).
 
 Label distributions barely move: only electric-heated homes are affected, and only those near a threshold change label. **Watching the rule itself catches it on the first new ratings** ([ADR-0008](docs/adr/0008-drift-detector-design.md)).
 
+**Replayed on the real change of 1 January 2026** (2.3 → 1.9), the implied coefficient drops from **2.30 to 1.90 (−17%) in the first month**. Catch: ADEME restates older ratings on the new basis, so the step only shows on the values as issued (`ancienne_*` columns), and the drift reference must be frozen.
+
 **Drift → retrain, end to end** (simulated): alert → coefficient 1.7 written to `params.yaml` → `dvc repro` → features re-labelled → retrained → test 15.94% median error → gate promoted v2 → reverted after the demo. The gate turned out too weak (0.02 points is noise, and the two scores come from different features); the fix is on the roadmap.
 
 **The app, on two real addresses** (same 50 m² apartment, label D):
@@ -123,15 +126,15 @@ The energy label is worth more where location weighs less.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│                       Property Price Estimator                        │
+│                       Property Price Estimator                       │
 ├──────────────────┬───────────────────────────────────────────────────┤
 │   Data Sources   │  DVF (data.gouv.fr) · ADEME DPE (remote DuckDB)   │
 ├──────────────────┴───────────────────────────────────────────────────┤
 │                                                                      │
 │   ┌──────────────────────┐          ┌──────────────────────────┐     │
-│   │ DVF: csv.gz → Parquet │          │ DPE: 8 tables → Parquet  │     │
-│   │ one row per sale      │          │ bucketed join, 15.7M     │     │
-│   │ 4.25M sales           │          │ ratings                  │     │
+│   │ DVF: csv.gz → Parquet│          │ DPE: 8 tables → Parquet  │     │
+│   │ one row per sale     │          │ bucketed join, 15.7M     │     │
+│   │ 4.25M sales          │          │ ratings                  │     │
 │   └──────────┬───────────┘          └────────────┬─────────────┘     │
 │              └─────────────┬──────────────────────┘                  │
 │                            ▼                                         │
@@ -149,7 +152,7 @@ The energy label is worth more where location weighs less.
 │                            ▼                                         │
 │              artifacts/model.txt + metadata.json                     │
 │                            │                                         │
-│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─│─ Part 2: MLOps ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─│─ Part 2: MLOps ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─    │
 │                            ▼                                         │
 │   DVC pipeline + params.yaml → MLflow registry ("champion")          │
 │                            │                                         │
@@ -210,7 +213,7 @@ Full design: [`docs/architecture.md`](docs/architecture.md).
 | Automatic retraining | ✅ | Drift → new coefficient → pipeline → gate (demo at 1.7) |
 | Serving | ✅ | FastAPI `/estimate` (address → estimate, range, price by label) + Streamlit app |
 | Tests + CI (GitHub Actions) | ✅ | ruff, pytest, lockfile and pipeline checks |
-| Drift backtest on the real Jan 2026 change | ⬜ | Monthly implied coefficient, 2.3 → 1.9 |
+| Drift backtest on the real Jan 2026 change | ✅ | 2.30 → 1.90 (−17%) in the first month |
 | Model on Hugging Face Hub | ⬜ | Downloadable model + card |
 | Docker + Terraform (AWS) | ⬜ | Validated locally with an AWS emulator |
 | DVC pipeline + `params.yaml` | ⬜ | Reproducible stages, versioned data |
@@ -238,7 +241,7 @@ This project is built to be reproducible and to teach, not just to work.
 | [`docs/models.md`](docs/models.md) | How each model works, pros and cons, books and videos to learn more |
 | [`docs/data-lineage.md`](docs/data-lineage.md) | Row counts at every step, raw → test |
 | [`docs/data-dictionary.md`](docs/data-dictionary.md) | Every column kept, its source and meaning |
-| [`docs/troubleshooting.md`](docs/troubleshooting.md) | Every error hit (25 so far): symptom → cause → fix |
+| [`docs/troubleshooting.md`](docs/troubleshooting.md) | Every error hit (28 so far): symptom → cause → fix |
 | [`docs/build-journal.md`](docs/build-journal.md) | What was done, in order, and why |
 | [`PLAYBOOK.md`](PLAYBOOK.md) | The reusable recipe: tabular big-data ML on one laptop, then MLOps |
 | [`docs/learning-references.md`](docs/learning-references.md) | Docs, books, courses and videos for every stage and tool |
@@ -253,7 +256,7 @@ This is not a tutorial. It is my record of how the project was built, including 
 DVF + DPE extraction → validated join → leak-free features → model comparison → LightGBM tested on 2025
 
 ### Part 2: MLOps ✅ · `v0.2.0`
-DVC + MLflow → drift detection on rating rule changes → automatic retraining with a gate → FastAPI + Streamlit → CI. Next: real-event backtest, Docker + AWS IaC
+DVC + MLflow → drift detection on rating rule changes → automatic retraining with a gate → FastAPI + Streamlit → CI. Next: frozen drift reference, Docker + AWS IaC
 
 ### V1.1: Model Improvements ⬜
 Relaxed match uniqueness → calibrated price ranges (quantile + conformal) → tuning → walk-forward validation
@@ -375,7 +378,8 @@ property-price-estimator/
 │   └── logging_config.py         # console + JSON lines, run_id
 │
 ├── scripts/
-│   └── dpe_inspect.py            # one-off schema exploration
+│   ├── dpe_inspect.py            # one-off schema exploration
+│   └── backtest_implied_coef.py  # drift detector replayed on the real Jan 2026 change
 │
 ├── tests/                        # DPE rules, API (mocked geocoding)
 ├── .github/workflows/ci.yml      # lint, tests, pipeline check

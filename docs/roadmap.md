@@ -15,7 +15,9 @@ Data prep for 4.2M sales and 15.7M DPEs, the DVF × DPE join, leak-free features
 - [x] Tests (pytest: DPE rules, API with mocked geocoding), ruff
 - [x] GitHub Actions: lock check, lint, tests, `dvc dag`
 - [x] Write-up part 2
-- [ ] **Backtest the drift detector on the real 2.3 → 1.9 change** (monthly implied coefficient, Jul 2025 – Jun 2026)
+- [x] **Backtest the drift detector on the real 2.3 → 1.9 change:** 2.30 → 1.90 (−17%) in the first month (23 Nov)
+- [ ] **Freeze the drift reference** (`reports/drift_reference.json`), since ADEME restates history
+- [ ] App: ask for the rating date; re-label pre-2026 electric-heated ratings at the current coefficient
 - [ ] Full `dvc repro --force` from raw data (should reproduce 15.96%)
 - [ ] DVC remote for prepared Parquet
 - [ ] Schedule the drift check (weekly, GitHub Actions cron or local scheduler) and open an issue on drift

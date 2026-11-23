@@ -111,3 +111,14 @@ Started around 17:00. Order agreed up front: pipeline → parameters → trackin
 **28. CI.** `ruff` (lint, imports) and `pytest` as dev tools. `tests/test_dpe_rules.py` tests the drift logic on an in-memory DuckDB table, no data needed: worst of energy and emissions, unchanged at 1.9, an electric home at 190 kWh/m² becomes 170 → D to C at 1.7. The API test is skipped when the model isn't there. `.github/workflows/ci.yml`: `uv sync --locked`, ruff, pytest, `dvc dag` (checks the pipeline definition without running it). **CI green.** Issue: #25.
 
 **29. Docs and write-up part 2.** This journal, PLAYBOOK part 2, troubleshooting #21–25, ADRs 0007–0009, [learning references](learning-references.md), model card, architecture, roadmap, README. Portfolio case study, part 2.
+
+## Monday 23 Nov 2026: real-event backtest
+
+**30. Ship the docs.** Docs committed. The CI badge was broken: the workflow file was `ci.yaml`, the badge pointed to `ci.yml` (#26). Renamed, badge pinned to `?branch=main`. CI green.
+
+**31. Backtest on the real January 2026 change.** `scripts/backtest_implied_coef.py`, monthly implied coefficient for electric-heated homes, Jul 2025 – Jun 2026 (#27, #28).
+- First run: **flat at 1.9, no step.** The extraction mapping was correct, so the cause was upstream: ADEME restated older ratings at 1.9 in its main columns.
+- The values as issued are kept in `ancienne_*_pef` columns. Pulled into a side file (`data/interim/dpe_pef23.parquet`), outside the pipeline.
+- Second run: **2.30 through December 2025, 1.90 from January 2026 (−17.4%, alert at 3%)**. The detector would have fired in the first month.
+- Also: only ~54% of electric-heated ratings from H2 2025 print the label ADEME publishes today.
+- Consequences: freeze the drift reference; ask for the rating date in the app ([ADR-0008](adr/0008-drift-detector-design.md)). Write-up part 2 updated with the figure.
