@@ -105,9 +105,26 @@ Estimate a home's sale price from what an owner knows, plus the history of past 
 
 ### Not built yet
 
-- A schedule for the drift check (weekly cron) and an issue opened on drift.
 - Docker Compose for API + app; Terraform for an AWS target, validated with an AWS emulator.
-- Model and card on Hugging Face Hub.
+
+## Part 3: deploy and monitor (in progress)
+
+```sh
+ Hugging Face Hub (model.txt, metadata.json, market_snapshot.parquet, card)
+        │ downloaded on first start, cached
+        ▼
+ Streamlit Community Cloud ── app, in-process Predictor ── IGN geocoding + cadastre
+        ▲ uptime ping (layer 3)
+
+ GitHub Actions, weekly (layer 2):
+   ADEME remote DuckDB (recent ratings) ─► drift vs frozen reports/drift_reference.json
+        └─ drift? ─► open a GitHub issue ─► human runs retrain_on_drift locally
+
+ Laptop (layer 1): dvc repro → logs/pipeline.jsonl (run_id) + MLflow UI
+ Twice a year (layer 4): new DVF release → score the champion on fresh sales
+```
+
+Details and alternatives: [ADR-0010](adr/0010-deployment-and-monitoring.md).
 
 ## V2: scale-out (planned)
 

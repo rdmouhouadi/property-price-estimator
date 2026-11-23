@@ -122,3 +122,5 @@ Started around 17:00. Order agreed up front: pipeline → parameters → trackin
 - Second run: **2.30 through December 2025, 1.90 from January 2026 (−17.4%, alert at 3%)**. The detector would have fired in the first month.
 - Also: only ~54% of electric-heated ratings from H2 2025 print the label ADEME publishes today.
 - Consequences: freeze the drift reference; ask for the rating date in the app ([ADR-0008](adr/0008-drift-detector-design.md)). Write-up part 2 updated with the figure.
+
+**32. Plan: deploy and monitor.** The app goes to Streamlit Community Cloud, which runs only the UI. So: model and lookup files on Hugging Face Hub, an in-process mode in the app, slim requirements, then deploy. FastAPI follows with Docker. Monitoring set as four layers: pipeline runs (logs + MLflow), data (weekly drift job against a frozen reference, opens a GitHub issue), service (uptime ping), model quality (score the champion on each DVF release) ([ADR-0010](adr/0010-deployment-and-monitoring.md)).

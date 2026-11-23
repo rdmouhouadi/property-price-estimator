@@ -25,6 +25,22 @@ Data prep for 4.2M sales and 15.7M DPEs, the DVF × DPE join, leak-free features
 - [ ] Model and card on Hugging Face Hub
 - [ ] Docker images (API, app, pipeline) + Compose; Terraform for AWS, validated with an AWS emulator
 
+## Part 3: deploy and monitor (in progress, from 23 Nov 2026)
+
+Plan: [ADR-0010](adr/0010-deployment-and-monitoring.md).
+
+**Deploy**
+- [ ] Push model, metadata, market snapshot and model card to Hugging Face Hub
+- [ ] App in-process mode (no `API_URL` → `Predictor` in the app, files from the Hub, cached)
+- [ ] Slim `requirements.txt` for the app
+- [ ] Deploy on Streamlit Community Cloud (Python 3.11)
+
+**Monitor (four layers)**
+- [ ] 1. Pipeline runs: JSON-lines logs per `run_id` + MLflow UI (in place; document how to follow live)
+- [ ] 2. Data: freeze the drift reference (`reports/drift_reference.json`); weekly GitHub Actions drift job on recent ADEME ratings → GitHub issue on drift
+- [ ] 3. Service: uptime ping on the app and `/health`; later Prometheus + Grafana with Docker
+- [ ] 4. Model quality: log estimates (inputs, model version); score the champion on each DVF release (April / October)
+
 ## V1.1: model improvements
 
 - [ ] Relax match uniqueness: keep a clearly best candidate (closest surface, then date)

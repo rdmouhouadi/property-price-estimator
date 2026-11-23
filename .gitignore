@@ -17,3 +17,6 @@ logs/
 artifacts/
 mlflow.db
 mlruns/
+
+.env
+

@@ -13,3 +13,4 @@ Each record has four parts: context, decision, alternatives considered, conseque
 | [0007](0007-pipeline-and-tracking.md) | Pipeline and tracking: DVC for how, MLflow for what, promotion gate | accepted |
 | [0008](0008-drift-detector-design.md) | Drift detector: monitor the rule (implied coefficient), not only label PSI | accepted |
 | [0009](0009-serving.md) | Serving: FastAPI for the model, Streamlit for people, IGN geocoding | accepted |
+| [0010](0010-deployment-and-monitoring.md) | Deployment (Hugging Face Hub + Streamlit Cloud) and four monitoring layers | accepted (in progress) |

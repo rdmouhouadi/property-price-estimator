@@ -142,6 +142,9 @@ Sections 1–10: the model. Sections 11–17: MLOps (pipeline, tracking, serving
 - [ ] Keep a generic distribution test (PSI) as a secondary net for unknown changes, per segment as well as overall.
 - [ ] Two kinds of checks: **real** (must be stable: proves harmonisation works) and **simulated** (must fire: proves the detector works). Only real checks raise the alert.
 - [ ] Simulated results can be drift by construction. **Backtest on a real past event** if one exists.
+- [ ] **Never assume a source keeps its history as it was.** Publishers restate old records under new rules. Check for it (here: `ancienne_*` columns), and use the values as issued for backtests.
+- [ ] **Freeze the reference.** Compute it once from the training snapshot, store it, compare against it. A reference recomputed from today's data moves with any restatement.
+- [ ] Check what users actually hold: if history was restated, the document in the user's hands may not match what the model learned.
 - [ ] One source of truth for the rules (a shared module), used by both features and monitoring.
 
 ## 16. Retraining
@@ -157,3 +160,15 @@ Sections 1–10: the model. Sections 11–17: MLOps (pipeline, tracking, serving
 - [ ] CI has no data and no model: unit-test the logic on tiny in-memory tables (DuckDB), and **skip** tests that need artifacts when they're absent.
 - [ ] Test the rules that matter most (here: label thresholds, harmonisation at the old and new coefficient).
 - [ ] CI badge in the README. Screenshot the first green run.
+
+## 18. Deploy and monitor
+
+- [ ] **Publish the model where people can download it** (Hugging Face Hub: weights, metadata, lookup tables, model card). The app downloads from there too.
+- [ ] **One app, two modes:** call the API when `API_URL` is set, run the predictor in-process otherwise. The free hosts run the UI only.
+- [ ] **Slim requirements for the deployed app.** Training tools (MLflow, DVC, XGBoost) don't belong in it.
+- [ ] **Monitor in four layers**, and know which one alerts:
+  1. **Pipeline runs:** structured logs with a `run_id`, followed live (`Get-Content file -Wait` / `tail -f`), plus the tracking UI.
+  2. **Data:** a scheduled job compares fresh source data with a **frozen** reference and opens an issue on drift. This is the alerting layer.
+  3. **Service:** an uptime ping on the app and the health endpoint.
+  4. **Model quality:** log predictions; score the champion when new ground truth arrives (here, each DVF release).
+- [ ] Ground truth often arrives months late. Monitor inputs and causes in the meantime.

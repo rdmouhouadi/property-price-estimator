@@ -136,7 +136,7 @@ The energy label is worth more where location weighs less.
 │   │ one row per sale     │          │ bucketed join, 15.7M     │     │
 │   │ 4.25M sales          │          │ ratings                  │     │
 │   └──────────┬───────────┘          └────────────┬─────────────┘     │
-│              └─────────────┬──────────────────────┘                  │
+│              └─────────────┬─────────────────────┘                   │
 │                            ▼                                         │
 │              ┌───────────────────────────┐                           │
 │              │  Address join (DuckDB)    │  604,773 matches          │
@@ -152,7 +152,7 @@ The energy label is worth more where location weighs less.
 │                            ▼                                         │
 │              artifacts/model.txt + metadata.json                     │
 │                            │                                         │
-│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─│─ Part 2: MLOps ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─    │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─│─ Part 2: MLOps ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  │
 │                            ▼                                         │
 │   DVC pipeline + params.yaml → MLflow registry ("champion")          │
 │                            │                                         │
@@ -214,14 +214,18 @@ Full design: [`docs/architecture.md`](docs/architecture.md).
 | Serving | ✅ | FastAPI `/estimate` (address → estimate, range, price by label) + Streamlit app |
 | Tests + CI (GitHub Actions) | ✅ | ruff, pytest, lockfile and pipeline checks |
 | Drift backtest on the real Jan 2026 change | ✅ | 2.30 → 1.90 (−17%) in the first month |
-| Model on Hugging Face Hub | ⬜ | Downloadable model + card |
+| Model on Hugging Face Hub | 🔄 | Downloadable model + card ([ADR-0010](docs/adr/0010-deployment-and-monitoring.md)) |
+| Public app (Streamlit Community Cloud) | 🔄 | In-process predictor, files from the Hub |
+| Live monitoring, 4 layers | 🔄 | Pipeline logs · weekly drift job (frozen reference) → GitHub issue · uptime · accuracy on each DVF release |
 | Docker + Terraform (AWS) | ⬜ | Validated locally with an AWS emulator |
 | DVC pipeline + `params.yaml` | ⬜ | Reproducible stages, versioned data |
 | MLflow tracking + registry | ⬜ | Experiments, champion model |
 | Tests + CI (GitHub Actions) | ⬜ | pytest, schema checks, ruff, pipeline on a sample |
 | Drift detection | ⬜ | Weekly check on new ratings (Evidently) → retrain trigger |
 | Serving | ⬜ | FastAPI `/predict` + Streamlit app |
-| Model on Hugging Face Hub | ⬜ | Downloadable model + card |
+| Model on Hugging Face Hub | 🔄 | Downloadable model + card ([ADR-0010](docs/adr/0010-deployment-and-monitoring.md)) |
+| Public app (Streamlit Community Cloud) | 🔄 | In-process predictor, files from the Hub |
+| Live monitoring, 4 layers | 🔄 | Pipeline logs · weekly drift job (frozen reference) → GitHub issue · uptime · accuracy on each DVF release |
 | Docker + Terraform (AWS) | ⬜ | Validated locally with AWS Emulator |
 
 ---
@@ -256,7 +260,7 @@ This is not a tutorial. It is my record of how the project was built, including 
 DVF + DPE extraction → validated join → leak-free features → model comparison → LightGBM tested on 2025
 
 ### Part 2: MLOps ✅ · `v0.2.0`
-DVC + MLflow → drift detection on rating rule changes → automatic retraining with a gate → FastAPI + Streamlit → CI. Next: frozen drift reference, Docker + AWS IaC
+DVC + MLflow → drift detection on rating rule changes → automatic retraining with a gate → FastAPI + Streamlit → CI. Next: public app on Streamlit Cloud, model on Hugging Face, weekly drift job, Docker + AWS IaC
 
 ### V1.1: Model Improvements ⬜
 Relaxed match uniqueness → calibrated price ranges (quantile + conformal) → tuning → walk-forward validation
@@ -387,7 +391,7 @@ property-price-estimator/
 ├── reports/                      # comparison, importance, test metrics, drift report
 │
 ├── docs/
-│   ├── adr/                      # 9 architecture decision records
+│   ├── adr/                      # 10 architecture decision records
 │   ├── architecture.md
 │   ├── data-dictionary.md
 │   ├── data-lineage.md
