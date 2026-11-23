@@ -84,6 +84,10 @@ class Predictor:
     def __init__(self) -> None:
         """Initialize the Predictor by loading the model, market snapshot, and metadata."""
 
+        from property_price.serving.hub import ensure_serving_files
+
+        ensure_serving_files()
+            
         self.meta = json.loads((ARTIFACTS / "metadata.json").read_text(encoding="utf-8"))
         self.features: list[str] = self.meta["features"]
         self.booster = self._load_model()
