@@ -1,7 +1,6 @@
 <div align="center">
 
 # 🏠 Property Price Estimator
-
 ### What is a French home worth, and what is its energy rating worth?
 
 *From 20 million rows of public data to a price estimate anyone can use, on one laptop.*

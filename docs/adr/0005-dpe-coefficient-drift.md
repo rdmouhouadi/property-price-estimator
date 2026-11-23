@@ -1,6 +1,6 @@
 # ADR-0005: DPE coefficient changes, harmonise the label and monitor drift
 
-- **Status:** accepted (harmonisation, V1) · proposed (monitoring and retraining, part 2)
+- **Status:** accepted (harmonisation, V1) · accepted with changes (monitoring and retraining, built 22 Nov 2026: see [ADR-0008](0008-drift-detector-design.md))
 - **Date:** 2026-11-21
 
 ## Context
@@ -29,6 +29,12 @@ The same home can get a better label with no work done. A model trained on old l
 - **Twice a year:** on each DVF release, check accuracy on the newest sales.
 - **Human gate:** promote only if the challenger beats the champion on the newest sales.
 - **Demo before January 2027:** recompute a sample of recent labels at 1.7, feed them in as "new data", and show the drift alert → retrain → evaluation loop.
+
+## As built (22 Nov 2026)
+
+- The coefficient lives in `params.yaml` (`dpe_rules.elec_coefficient`) and the harmonise step is `dpe_rules.harmonised_sql`, used by features and drift.
+- The weekly Evidently check was replaced: label PSI turned out blind to the 2027 change. The primary detector is the implied coefficient ([ADR-0008](0008-drift-detector-design.md)).
+- The 1.7 demo ran end to end: drift → retrain → gate. The gate needs a fairer comparison ([ADR-0007](0007-pipeline-and-tracking.md)).
 
 ## Consequences
 
