@@ -1,16 +1,13 @@
 """Streamlit front end: calls the FastAPI service, shows the estimate and the energy-rating what-if."""
 
 import os
-
-
+import sys
+from pathlib import Path
 
 import pandas as pd
 import plotly.graph_objects as go
 import requests
 import streamlit as st
-
-import sys
-from pathlib import Path
 
 SRC = Path(__file__).resolve().parents[2]          # .../src
 if str(SRC) not in sys.path:
